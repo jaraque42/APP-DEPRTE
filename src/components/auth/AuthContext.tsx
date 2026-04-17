@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userDoc, setUserDoc] = useState<any>(null);
 
   const refreshProfile = async () => {
-    if (session?.user?.id) {
+    if ((session?.user as any)?.id) {
         const local = localStorage.getItem('fit_mock_user_doc');
         if (local) {
             setUserDoc(JSON.parse(local));
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         try {
-            const profile = await getMongoUserDoc(session.user.id);
+            const profile = await getMongoUserDoc((session.user as any).id);
             setUserDoc(profile);
         } catch (e) {
             console.error("Error refreshing profile", e);
