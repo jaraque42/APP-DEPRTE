@@ -56,7 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (e: string, p: string) => {
-      await registerMongoUser(e, p);
+      const res = await registerMongoUser(e, p);
+      if (res?.error) throw new Error(res.error);
       await login(e, p);
   };
 

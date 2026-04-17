@@ -11,14 +11,18 @@ import bcrypt from "bcryptjs";
 
 // Auth methods
 export async function registerMongoUser(email: string, password: string) {
-    await connectToDatabase();
-    const existing = await User.findOne({ email });
-    if (existing) throw new Error("Email already registered");
+    try {
+        await connectToDatabase();
+        const existing = await User.findOne({ email });
+        if (existing) return { error: "Email already registered" };
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const name = email.split("@")[0];
-    const newUser = await User.create({ email, passwordHash, name });
-    return JSON.parse(JSON.stringify(newUser));
+        const passwordHash = await bcrypt.hash(password, 10);
+        const name = email.split("@")[0];
+        const newUser = await User.create({ email, passwordHash, name });
+        return { success: true, user: JSON.parse(JSON.stringify(newUser)) };
+    } catch (e: any) {
+        return { error: e.message || "Database connection error" };
+    }
 }
 
 // User Profile
