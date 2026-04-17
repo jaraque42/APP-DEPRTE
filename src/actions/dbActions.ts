@@ -7,12 +7,15 @@ import FoodLibrary from "@/lib/models/FoodLibrary";
 import DailyLog from "@/lib/models/DailyLog";
 import FoodLog from "@/lib/models/FoodLog";
 
+import bcrypt from "bcrypt";
+
 // Auth methods
-export async function registerMongoUser(email: string, passwordHash: string) {
+export async function registerMongoUser(email: string, password: string) {
     await connectToDatabase();
     const existing = await User.findOne({ email });
     if (existing) throw new Error("Email already registered");
 
+    const passwordHash = await bcrypt.hash(password, 10);
     const name = email.split("@")[0];
     const newUser = await User.create({ email, passwordHash, name });
     return JSON.parse(JSON.stringify(newUser));
