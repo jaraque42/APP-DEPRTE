@@ -200,7 +200,7 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
                                 <button 
                                   className={styles.btnPrimary} 
                                   disabled={selectedDays.length === 0 || isSaving}
-                                  onClick={() => handleSavePlan(workout.id, activeRoutineDetails.category, activeLevel)}
+                                  onClick={() => handleSavePlan(workout.id, activeRoutineDetails.category, activeLevel || '')}
                                 >
                                   {isSaving ? 'Guardando...' : 'Guardar y Ver Calendario'}
                                 </button>
