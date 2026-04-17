@@ -6,7 +6,7 @@ import { finishOnboardingData } from "@/services/supabaseService";
 import { useAuth } from "../auth/AuthContext";
 
 export default function Onboarding() {
-  const { refreshUserDoc, user } = useAuth();
+  const { refreshProfile, user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     gender: 'male',
@@ -44,7 +44,7 @@ export default function Onboarding() {
     setIsFinishing(true);
     try {
       await finishOnboardingData(formData);
-      await refreshUserDoc(); // Esto disparará que page.tsx nos saque de Onboarding y muestre Dashboard
+      await refreshProfile(); // Esto disparará que page.tsx nos saque de Onboarding y muestre Dashboard
     } catch (e) {
       console.error(e);
       setIsFinishing(false);
