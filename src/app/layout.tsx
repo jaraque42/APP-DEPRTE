@@ -12,7 +12,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import AppLayout from "@/components/layout/AppLayout";
 import AuthWrapper from "@/components/auth/AuthWrapper";
 
 export const metadata: Metadata = {

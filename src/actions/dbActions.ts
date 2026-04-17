@@ -7,7 +7,7 @@ import FoodLibrary from "@/lib/models/FoodLibrary";
 import DailyLog from "@/lib/models/DailyLog";
 import FoodLog from "@/lib/models/FoodLog";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // Auth methods
 export async function registerMongoUser(email: string, password: string) {
