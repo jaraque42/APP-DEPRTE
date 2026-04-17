@@ -1,0 +1,255 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@media (min-width: 768px) {
+  .modalOverlay {
+    align-items: center;
+  }
+}
+
+.modalContent {
+  background-color: var(--card-bg);
+  width: 100%;
+  max-width: 28rem; /* max-w-md */
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.closeBtn {
+  color: var(--secondary-text);
+  font-size: 1.5rem;
+  padding: 4px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.closeBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+}
+
+.inputWrapper {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.searchInput {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.05); /* bg-white/5 */
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(223, 255, 0, 0.2);
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 24px;
+  /* custom-scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+
+.foodItem {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.foodItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.macroProtein { border-left-color: #0A84FF; } /* Azul según tip */
+.macroFat { border-left-color: #FFD60A; } /* Amarillo según tip */
+
+.selected {
+  border: 1px solid var(--accent) !important;
+  background-color: rgba(223, 255, 0, 0.1) !important;
+  box-shadow: 0 0 15px rgba(223, 255, 0, 0.2);
+}
+
+
+.foodInfo {
+  text-align: left;
+}
+
+.foodName {
+  color: var(--foreground);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.foodMacros {
+  color: var(--secondary-text);
+  font-size: 0.75rem;
+}
+
+.addButton {
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 300;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selectedFoodBlock {
+  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.selectedGrid {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.inputGroup {
+  flex: 1;
+}
+
+.inputLabel {
+  font-size: 0.75rem;
+  color: var(--secondary-text);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.numberInput {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--foreground);
+  font-family: inherit;
+}
+
+.totalGroup {
+  flex: 1;
+  text-align: right;
+}
+
+.totalValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.confirmBtn {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--accent);
+  color: #000;
+  font-weight: 900;
+  font-size: 1rem;
+  border-radius: 16px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.confirmBtn:active {
+  transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.mealSelector {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 16px 0;
+  margin-bottom: 24px;
+  scrollbar-width: none;
+}
+
+.mealSelector::-webkit-scrollbar { display: none; }
+
+.mealOption {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--secondary-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mealOptionActive {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+

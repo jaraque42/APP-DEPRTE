@@ -1,0 +1,226 @@
+.calendarContainer {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.05em;
+}
+
+.subtitle {
+  color: var(--secondary-text);
+  font-size: 1rem;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-left-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 100px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: var(--card-bg);
+  border-radius: 24px;
+  border: 1px dashed var(--border-color);
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--secondary-text);
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.emptyState h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.emptyState p {
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+}
+
+/* Plan Active */
+.planCard {
+  background: linear-gradient(135deg, rgba(223, 255, 0, 0.1) 0%, rgba(20,20,20, 1) 100%);
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.planMeta {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #000;
+  background-color: var(--accent);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.planTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.planDesc {
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+}
+
+.weekTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #e4e4e7;
+}
+
+.weekGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dayCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .dayCard {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.dayCard.today {
+  border-color: rgba(255,255,255,0.3);
+  background-color: rgba(255,255,255,0.02);
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  .dayHeader {
+    margin-bottom: 0;
+    min-width: 150px;
+  }
+}
+
+.dayName {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.todayBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: #fff;
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.dayContent {
+  flex: 1;
+}
+
+.trainingBlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: rgba(223, 255, 0, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.trainingIcon {
+  color: var(--accent);
+}
+
+.trainingInfo {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tLabel {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.startBtn {
+  background-color: var(--accent);
+  color: #000;
+  border: none;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.restBlock {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.02);
+  border: 1px dashed rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+}
+
+.restLabel {
+  font-size: 0.875rem;
+  color: var(--secondary-text);
+}
+
+.multiplePlansBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

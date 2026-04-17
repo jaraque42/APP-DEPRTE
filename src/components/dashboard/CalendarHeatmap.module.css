@@ -1,0 +1,107 @@
+.consistencyCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px; /* Default margin from grid padding if needed */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  color: var(--foreground);
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.subtitle {
+  color: var(--secondary-text);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.scrollContainer {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin: 0 -8px; /* Offset the wrapper's inner padding smoothly */
+  padding: 0 8px;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.nodesWrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: max-content;
+}
+
+.nodeItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 4px;
+}
+
+.dayLabel {
+  font-size: 0.625rem; /* 10px */
+  color: var(--secondary-text);
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.nodeCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* Status variants */
+.perfect {
+  border-color: var(--accent);
+  background-color: rgba(223, 255, 0, 0.2);
+}
+
+.partial {
+  border-color: rgba(223, 255, 0, 0.5); /* A bit dimmer */
+  background-color: rgba(223, 255, 0, 0.1);
+}
+
+.missed {
+  opacity: 0.5;
+}
+
+.todayBorder {
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.checkIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+/* Expand back into a broader grid if Desktop */
+@media (min-width: 1024px) {
+  .nodesWrapper {
+    gap: 16px; 
+    justify-content: center;
+  }
+}

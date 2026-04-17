@@ -1,0 +1,249 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-y: auto;
+  position: relative;
+  z-index: 9999;
+}
+
+/* Countdown Screen */
+.countdownScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--bg-color) 0%, rgba(223, 255, 0, 0.1) 100%);
+  animation: bgPulse 2s infinite;
+}
+
+.countdownScreen h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+  color: var(--secondary-text);
+}
+
+.countdownNumber {
+  font-size: 8rem;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(223, 255, 0, 0.4);
+  animation: popIn 1s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes bgPulse {
+  0% { background: linear-gradient(180deg, var(--bg-color) 0%, rgba(223, 255, 0, 0.05) 100%); }
+  50% { background: linear-gradient(180deg, var(--bg-color) 0%, rgba(223, 255, 0, 0.15) 100%); }
+  100% { background: linear-gradient(180deg, var(--bg-color) 0%, rgba(223, 255, 0, 0.05) 100%); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  20% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--secondary-text);
+  cursor: pointer;
+  padding: 8px;
+  margin-left: -8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.planTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+/* Stopwatch Area */
+.stopwatchArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background-color: var(--card-bg);
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.timerDisplay {
+  font-size: 5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+}
+
+.ctrlBtn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ctrlBtn.primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+.ctrlBtn:hover {
+  transform: scale(1.05);
+}
+
+/* Exercises */
+.exerciseListContainer {
+  flex: 1;
+  padding: 24px;
+  margin-bottom: 80px; /* footer space */
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  margin-bottom: 16px;
+  color: var(--secondary-text);
+}
+
+.exerciseList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exerciseItem {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* increased gap to fit btn */
+  flex: 1;
+}
+
+.exName {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.exMeta {
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.completeSetBtn {
+  margin-top: 8px;
+  background-color: rgba(223, 255, 0, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(223, 255, 0, 0.2);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s;
+}
+
+.completeSetBtn:hover {
+  background-color: var(--accent);
+  color: #000;
+}
+.completeSetBtn:active {
+  transform: scale(0.95);
+}
+
+.exRest {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+/* Footer */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  background: linear-gradient(to top, var(--bg-color) 50%, transparent);
+}
+
+.finishBtn {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: #ff3b30;
+  color: #fff;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 20px rgba(255, 59, 48, 0.4);
+}
+
+.finishBtn:hover {
+  transform: translateY(-2px);
+  background-color: #ff453a;
+}

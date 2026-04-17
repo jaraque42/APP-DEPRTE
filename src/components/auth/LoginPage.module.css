@@ -1,0 +1,120 @@
+.authContainer {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background);
+  padding: 24px;
+  animation: slideUpIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.fadeOut {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.authBox {
+  width: 100%;
+  max-width: 400px;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.brandTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.05em;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.subtitle {
+  color: var(--secondary-text);
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.inputField {
+  width: 100%;
+  background-color: #161616;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 20px;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.inputField:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05); /* un pelin mas claro */
+  border-bottom-color: var(--accent);
+}
+
+.errorText {
+  color: #ff3b30;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: -8px;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 18px;
+  background-color: var(--accent);
+  color: #000;
+  font-size: 1.125rem;
+  font-weight: 900;
+  border-radius: 16px;
+  cursor: pointer;
+  margin-top: 16px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  box-shadow: 0 8px 30px rgba(223, 255, 0, 0.2);
+}
+
+.submitBtn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4px 15px rgba(223, 255, 0, 0.1);
+}
+
+.toggleModeBtn {
+  margin-top: 32px;
+  background: none;
+  border: none;
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+}
+
+.toggleModeBtn:hover {
+  color: var(--foreground);
+  text-decoration-color: var(--foreground);
+}
+
+@keyframes slideUpIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}

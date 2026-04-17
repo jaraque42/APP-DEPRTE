@@ -1,0 +1,54 @@
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  padding-bottom: 80px; /* Space for mobile bottom bar */
+}
+
+.rightPanel {
+  display: none;
+}
+
+/* Desktop Layout (12 col: 2/7/3) */
+@media (min-width: 1024px) {
+  .appContainer {
+    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Navigation spans 2 cols, handled inside its own css but we assign grid here if we want, or from inside. We'll use classes on the container though. Actually, Navigation is rendered naked, so we should map grid column inside those components or wrap them. Let's adjust wrapper here */
+  
+  .mainContent {
+    grid-column: span 7;
+    padding: 32px 48px;
+    padding-bottom: 32px;
+    height: 100%;
+    overflow-y: auto;
+    /* Custom scrollbar para mantenerlo limpio */
+    scrollbar-width: none; 
+  }
+  
+  .mainContent::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rightPanel {
+    display: block;
+    grid-column: span 3;
+    padding: 32px;
+    border-left: 1px solid var(--border-color);
+    background-color: #121214;
+    height: 100%;
+    overflow-y: auto;
+  }
+}

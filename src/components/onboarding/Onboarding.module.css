@@ -1,0 +1,197 @@
+.onboardingContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.contentBox {
+  width: 100%;
+  max-width: 440px; /* max-w-md */
+}
+
+.progressBarBg {
+  height: 4px; /* h-1 */
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  margin-bottom: 48px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--accent);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.displayPrompt {
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  margin-bottom: 8px;
+  color: var(--foreground);
+  text-transform: uppercase;
+}
+
+.promptSubtitle {
+  color: var(--secondary-text);
+  margin-bottom: 32px;
+  font-size: 1rem;
+}
+
+.stepAnimated {
+  will-change: transform, opacity;
+}
+
+.fadeInZoom {
+  animation: fadeZoom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fadeIn {
+  animation: slideFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pilledBtn {
+  padding: 32px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background-color: transparent;
+  color: var(--foreground);
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  cursor: pointer;
+  letter-spacing: -0.02em;
+}
+
+.pilledBtn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(223, 255, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.formCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.inputStack {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.inputStack label {
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
+.glassInput {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  border-radius: 16px;
+  color: var(--foreground);
+  font-size: 1.125rem;
+  transition: all 0.2s;
+}
+
+.glassInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nextBtn {
+  width: 100%;
+  padding: 18px;
+  background-color: var(--accent);
+  color: #000;
+  font-weight: 900;
+  font-size: 1.125rem;
+  border-radius: 16px;
+  margin-top: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 30px rgba(223, 255, 0, 0.2);
+}
+
+.nextBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.nextBtn:active:not(:disabled) {
+  transform: scale(0.95);
+  box-shadow: 0 4px 15px rgba(223, 255, 0, 0.1);
+}
+
+.listBtn {
+  width: 100%;
+  padding: 24px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  text-align: left;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.listBtn:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.listBtn:hover .listTitle,
+.listBtn:hover .listSub {
+  color: #000;
+}
+
+.listTitle {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--foreground);
+  margin-bottom: 4px;
+  transition: color 0.2s;
+}
+
+.listSub {
+  display: block;
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.disabledRow {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@keyframes fadeZoom {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideFade {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}

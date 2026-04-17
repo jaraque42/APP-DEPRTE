@@ -1,65 +1,58 @@
-import Image from "next/image";
+"use client";
+
+import Dashboard from "@/components/dashboard/Dashboard";
+import LoginPage from "@/components/auth/LoginPage";
+import AppLayout from "@/components/layout/AppLayout";
+import Onboarding from "@/components/onboarding/Onboarding";
+import { useAuth } from "@/components/auth/AuthContext";
+import { useState } from "react";
+import DietPage from "@/components/nutrition/DietPage";
+import WorkoutPage from "@/components/workout/WorkoutPage";
+import CalendarPage from "@/components/calendar/CalendarPage";
+import WorkoutSession from "@/components/workout/WorkoutSession";
 
 export default function Home() {
+  const { user, userDoc, loading } = useAuth();
+  const [activeSection, setActiveSection] = useState("home");
+  const [activeSessionPlan, setActiveSessionPlan] = useState<any>(null);
+
+  const startWorkout = (plan: any) => {
+    setActiveSessionPlan(plan);
+    setActiveSection("session");
+  };
+
+  if (loading) {
+     // Estilo base en carga
+     return <div style={{ height: "100vh", width: "100vw", backgroundColor: "#0A0A0A" }} />;
+  }
+
+  // 1. Gate de login
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  // 2. Gate de Onboarding
+  if (!userDoc || userDoc.onboarding_complete === false) {
+    return <Onboarding />;
+  }
+
+  // 3. Modo Sesión (toma toda la pantalla)
+  if (activeSection === "session" && activeSessionPlan) {
+    return <WorkoutSession plan={activeSessionPlan} onComplete={() => setActiveSection("home")} />;
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <AppLayout activeSection={activeSection} onNavigate={setActiveSection}>
+      {activeSection === "home" && <Dashboard onStartWorkout={startWorkout} />}
+      {activeSection === "diet" && <DietPage />}
+      {activeSection === "workout" && <WorkoutPage onNavigate={setActiveSection} />}
+      {activeSection === "calendar" && <CalendarPage onStartWorkout={startWorkout} />}
+      {activeSection !== "home" && activeSection !== "diet" && activeSection !== "workout" && activeSection !== "calendar" && (
+        <div style={{ padding: "40px", textAlign: "center", color: "var(--secondary-text)" }}>
+          Sección "{activeSection}" en desarrollo... ⚡️
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </AppLayout>
   );
 }
+
