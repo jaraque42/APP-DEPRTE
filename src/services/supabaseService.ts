@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import * as actions from '@/actions/dbActions';
 
 // Switch para pruebas locales sin backend real
 const IS_MOCK_MODE = typeof window !== 'undefined' && 
@@ -30,10 +30,12 @@ const triggerMockAuthChange = (event: string) => {
   }
 };
 
+import { getSession, signOut } from 'next-auth/react';
+
 export const getActiveUser = async () => {
   if (IS_MOCK_MODE) return mockUser;
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  const session = await getSession();
+  return session?.user || null;
 };
 
 export const handleLogin = async (email: string, password: string) => {
@@ -94,17 +96,11 @@ export const getUserDoc = async () => {
   if (IS_MOCK_MODE) return mockUserDoc;
   const user = await getActiveUser();
   if (!user) return null;
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-  
-  if (error) {
-    console.error("Error fetching user doc", error);
-    return null;
+  try {
+      return await actions.getMongoUserDoc(user.id);
+  } catch (e) {
+      return null;
   }
-  return data;
 };
 
 export const finishOnboardingData = async (formData: any) => {
@@ -166,9 +162,7 @@ export const finishOnboardingData = async (formData: any) => {
   const user = await getActiveUser();
   if (!user) throw new Error("No user");
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({ 
+  const profileData = { 
       age: formData.age,
       weight_kg: formData.weight_kg,
       height_cm: formData.height_cm,
@@ -180,23 +174,15 @@ export const finishOnboardingData = async (formData: any) => {
       target_carbs: c,
       target_fats: f,
       onboarding_complete: true 
-    })
-    .eq('id', user.id);
-  
-  if (error) throw error;
+  };
 
-  // Actualizar la rutina en PROD
-  if (formData.routineDays && formData.routineDays.length > 0) {
-     const { data: existingPlans } = await supabase.from('workout_plans').select('id').eq('user_id', user.id);
-     if (existingPlans && existingPlans.length > 0) {
-        await supabase.from('workout_plans').update({
-           routine_id: formData.routineCategory,
-           category: formData.routineCategory.toLowerCase(),
-           level: formData.routineLevel,
-           days: formData.routineDays
-        }).eq('id', existingPlans[0].id);
-     }
-  }
+  await actions.finishMongoOnboarding(user.id, profileData, formData.routineDays ? {
+      routine_id: formData.routineCategory,
+      category: formData.routineCategory.toLowerCase(),
+      level: formData.routineLevel,
+      days: formData.routineDays
+  } : null);
+  return true;
 };
 
 export const updateUserMacros = async (macros: { kcal: number, p: number, c: number, f: number }) => {
@@ -216,21 +202,8 @@ export const updateUserMacros = async (macros: { kcal: number, p: number, c: num
   const user = await getActiveUser();
   if (!user) throw new Error("No user");
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({ 
-      target_kcal: macros.kcal,
-      target_protein: macros.p,
-      target_carbs: macros.c,
-      target_fats: macros.f
-    })
-    .eq('id', user.id);
-  
-  if (error) throw error;
-  
-  // Update local session
-  const { data } = await supabase.auth.refreshSession();
-  return { success: true };
+  await actions.updateMongoUserMacros(user.id, { kcal: macros.kcal, p: macros.p, c: macros.c, f: macros.f });
+  return true;
 };
 
 export const handleLogout = async () => {
@@ -246,7 +219,7 @@ export const handleLogout = async () => {
     triggerMockAuthChange('SIGNED_OUT');
     return;
   }
-  await supabase.auth.signOut();
+  await signOut({ redirect: false });
 };
 
 
@@ -272,30 +245,21 @@ export const logFoodEntry = async (food: any, amount: number, meal_type: string 
     return { success: true };
   }
 
-
-  const { error } = await supabase
-    .from('food_logs')
-    .insert([{
-      user_id: user.id,
+  await actions.logMongoFoodEntry(user.id, {
       food_id: food.id,
-      amount: amount,
+      amount,
       kcal_total,
       p_total,
       c_total,
       f_total,
       meal_type
-    }]);
-
-
-  if (error) throw error;
+  });
   return { success: true };
 };
 
 export const getTodayConsumption = async () => {
   const user = await getActiveUser();
   if (!user) return { kcal: 0, p: 0, c: 0, f: 0 };
-
-  const today = new Date().toISOString().split('T')[0];
 
   if (IS_MOCK_MODE) {
     return mockFoodLogs.reduce((acc, log) => ({
@@ -306,30 +270,16 @@ export const getTodayConsumption = async () => {
     }), { kcal: 0, p: 0, c: 0, f: 0 });
   }
 
-  const { data, error } = await supabase
-    .from('food_logs')
-    .select('kcal_total, p_total, c_total, f_total')
-    .eq('user_id', user.id)
-    .eq('log_date', today);
-
-  if (error) {
-    console.error("Error fetching consumption", error);
-    return { kcal: 0, p: 0, c: 0, f: 0 };
+  try {
+      return await actions.getMongoDailyConsumption(user.id);
+  } catch (e) {
+      return { kcal: 0, p: 0, c: 0, f: 0 };
   }
-
-  return data.reduce((acc, log) => ({
-    kcal: acc.kcal + log.kcal_total,
-    p: acc.p + log.p_total,
-    c: acc.c + log.c_total,
-    f: acc.f + log.f_total
-  }), { kcal: 0, p: 0, c: 0, f: 0 });
 };
 
 export const getDetailedFoodLogs = async () => {
   const user = await getActiveUser();
   if (!user) return [];
-
-  const today = new Date().toISOString().split('T')[0];
 
   if (IS_MOCK_MODE) {
     // Simulamos el join en el modo mock
@@ -343,21 +293,11 @@ export const getDetailedFoodLogs = async () => {
   }
 
 
-  const { data, error } = await supabase
-    .from('food_logs')
-    .select(`
-      *,
-      food_library ( name )
-    `)
-    .eq('user_id', user.id)
-    .eq('log_date', today)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error("Error fetching detailed logs", error);
-    return [];
+  try {
+      return await actions.getMongoDetailedFoodLogs(user.id);
+  } catch(e) {
+      return [];
   }
-  return data;
 };
 
 
@@ -392,11 +332,7 @@ export const saveWorkoutPlan = async (routineId: string, category: string, level
     return { success: true };
   }
 
-  const { error } = await supabase
-    .from('workout_plans')
-    .insert({ user_id: user.id, ...planData });
-
-  if (error) throw error;
+  await actions.saveMongoWorkoutPlan(user.id, planData);
   return { success: true };
 };
 
@@ -408,13 +344,11 @@ export const getWorkoutPlan = async () => {
     return mockWorkoutPlans || [];
   }
 
-  const { data, error } = await supabase
-    .from('workout_plans')
-    .select('*')
-    .eq('user_id', user.id);
-
-  if (error) return [];
-  return data;
+  try {
+      return await actions.getMongoWorkoutPlans(user.id);
+  } catch (e) {
+      return [];
+  }
 };
 
 let mockFoodLibrary: any[] = [
@@ -432,16 +366,7 @@ export const searchFoodLibrary = async (query: string) => {
      return mockFoodLibrary.filter(f => f.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
   }
   
-  if (!query || query.trim().length === 0) {
-      const { data, error } = await supabase.from('food_library').select('*').limit(10);
-      if (error) return [];
-      return data;
-  }
-
-  if (query.trim().length < 2) return [];
-  const { data, error } = await supabase.from('food_library').select('*').textSearch('name', query, { type: 'websearch', config: 'spanish' }).limit(5);
-  if (error) return [];
-  return data;
+  return await actions.searchMongoFoodLibrary(query);
 };
 
 export const addFoodToLibrary = async (food: { name: string, kcal_per_100g: number, protein_per_100g: number, carbs_per_100g: number, fat_per_100g: number, unit?: string }) => {
@@ -456,14 +381,7 @@ export const addFoodToLibrary = async (food: { name: string, kcal_per_100g: numb
     return customFood;
   }
 
-  const { data, error } = await supabase
-    .from('food_library')
-    .insert([newFood])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  return await actions.addMongoFoodToLibrary(newFood);
 };
 
 let mockDailyLogs: any[] = [];
@@ -475,9 +393,7 @@ export const logDailyStatus = async (userId: string, type: 'diet' | 'workout') =
     if (!existing) mockDailyLogs.push({ log_date: today, status: 'perfect' });
     return { status: 'ok' };
   }
-  const { data, error } = await supabase.from('daily_logs').upsert({ user_id: userId, log_date: today, status: 'perfect' }, { onConflict: 'user_id, log_date' });
-  if (error) throw error;
-  return data;
+  return await actions.logMongoDailyStatus(userId);
 };
 
 export const getWeeklyLogs = async () => {
@@ -498,19 +414,11 @@ export const getWeeklyLogs = async () => {
     });
   }
 
-  const { data, error } = await supabase
-    .from('daily_logs')
-    .select('*')
-    .eq('user_id', user.id)
-    .in('log_date', last7Days);
-
-  if (error) return [];
-  
-  // Rellenar días vacíos
-  return last7Days.map(dateStr => {
-    const found = data.find(d => d.log_date === dateStr);
-    return found ? found : { log_date: dateStr, status: 'none' };
-  });
+  try {
+      return await actions.getMongoWeeklyLogs(user.id);
+  } catch(e) {
+      return [];
+  }
 };
 
 export const syncOfflineAction = async (actionName: string, payload: any) => {
@@ -520,9 +428,6 @@ export const syncOfflineAction = async (actionName: string, payload: any) => {
 
 export const processOfflineQueue = async () => {};
 
-// Envolver onAuthStateChange para manejar el Mock
-const originalOnAuthStateChange = supabase.auth.onAuthStateChange.bind(supabase.auth);
-
 export const onAuthStateChange = (callback: (event: string, session: any) => void) => {
   if (IS_MOCK_MODE) {
     mockSubscription = callback;
@@ -530,7 +435,7 @@ export const onAuthStateChange = (callback: (event: string, session: any) => voi
     callback('INITIAL_SESSION', mockUser ? { user: mockUser } : null);
     return { data: { subscription: { unsubscribe: () => { mockSubscription = null; } } } };
   }
-  return originalOnAuthStateChange(callback);
+  // In NextAuth we don't need this listener manually as SessionProvider handles it
+  return { data: { subscription: { unsubscribe: () => {} } } };
 };
 
-export { supabase };

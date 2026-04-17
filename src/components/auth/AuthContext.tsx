@@ -1,89 +1,82 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase, handleLogin, handleSignUp, getUserDoc, onAuthStateChange, handleLogout as apiLogout } from "@/services/supabaseService";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { getMongoUserDoc } from '@/actions/dbActions';
+
+import { registerMongoUser } from '@/actions/dbActions';
 
 interface AuthContextType {
-  user: any;
-  userDoc: any;
+  user: any | null;
   loading: boolean;
-  login: (e: string, p: string) => Promise<any>;
-  register: (e: string, p: string) => Promise<any>;
+  userDoc: any | null;
+  refreshProfile: () => Promise<void>;
+  login: (e: string, p: string) => Promise<void>;
+  register: (e: string, p: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshUserDoc: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+const AuthContext = createContext<AuthContextType>({ 
+    user: null, loading: true, userDoc: null, 
+    refreshProfile: async () => {}, login: async () => {}, register: async () => {}, logout: async () => {} 
+});
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
   const [userDoc, setUserDoc] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
-  const fetchAndSetDoc = async () => {
-    try {
-      const doc = await getUserDoc();
-      setUserDoc(doc);
-    } catch (e) {
-      console.error("Failed to fetch user doc", e);
+  const refreshProfile = async () => {
+    if (session?.user?.id) {
+        const local = localStorage.getItem('fit_mock_user_doc');
+        if (local) {
+            setUserDoc(JSON.parse(local));
+            return;
+        }
+        
+        try {
+            const profile = await getMongoUserDoc(session.user.id);
+            setUserDoc(profile);
+        } catch (e) {
+            console.error("Error refreshing profile", e);
+        }
     }
   };
 
   useEffect(() => {
-    // Escuchar cambios en la sesión (Mock o Supabase real)
-    const { data: { subscription } } = onAuthStateChange(async (event, session) => {
-      const currentUser = session?.user || null;
-      setUser(currentUser);
-      
-      if (currentUser) {
-        await fetchAndSetDoc();
-      } else {
+    if (status === 'authenticated') {
+        refreshProfile();
+    } else {
         setUserDoc(null);
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const refreshUserDoc = async () => {
-    await fetchAndSetDoc();
-  };
+    }
+  }, [status, session]);
 
   const login = async (e: string, p: string) => {
-    setLoading(true);
-    try {
-      const u = await handleLogin(e, p);
-      return u;
-    } finally {
-      setLoading(false);
-    }
+      const res = await signIn('credentials', { email: e, password: p, redirect: false });
+      if (res?.error) throw new Error(res.error);
   };
 
   const register = async (e: string, p: string) => {
-    setLoading(true);
-    try {
-      const u = await handleSignUp(e, p);
-      return u;
-    } finally {
-      setLoading(false);
-    }
+      await registerMongoUser(e, p);
+      await login(e, p);
   };
 
   const logout = async () => {
-    await apiLogout();
-    setUser(null);
-    setUserDoc(null);
+      await signOut({ redirect: false });
   };
 
+  const value = {
+    user: session?.user || null,
+    loading: status === 'loading',
+    userDoc,
+    refreshProfile,
+    login,
+    register,
+    logout
+  };
 
-  return (
-    <AuthContext.Provider value={{ user, userDoc, loading, login, register, logout, refreshUserDoc }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}

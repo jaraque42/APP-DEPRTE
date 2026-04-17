@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 import AppLayout from "@/components/layout/AppLayout";
-import { AuthProvider } from "@/components/auth/AuthContext";
+import AuthWrapper from "@/components/auth/AuthWrapper";
 
 export const metadata: Metadata = {
   title: "EOLCAIMFIT",
@@ -39,9 +39,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body>
-        <AuthProvider>
+        <AuthWrapper>
           {children}
-        </AuthProvider>
+        </AuthWrapper>
       </body>
     </html>
   );
