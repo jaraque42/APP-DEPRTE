@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         try {
-            const profile = await getMongoUserDoc((session.user as any).id);
+            const profile = await getMongoUserDoc((session?.user as any).id);
             setUserDoc(profile);
         } catch (e) {
             console.error("Error refreshing profile", e);
