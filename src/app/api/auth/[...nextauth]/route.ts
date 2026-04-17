@@ -59,7 +59,7 @@ const handler = NextAuth({
   pages: {
     signIn: '/',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "eolcaimfit_super_secret_jwt_key_2026_dev",
 });
 
 export { handler as GET, handler as POST };
