@@ -17,7 +17,7 @@ export default function WorkoutSession({ plan, onComplete }: { plan: any, onComp
   // Note: plan.routine_id actually holds the top level workout category id (e.g. 'calisthenics')
   const actualCategory = plan.category || plan.routine_id;
   const routineDetails = WORKOUT_DB.find(w => 
-    (w.category === actualCategory || w.id?.includes(actualCategory)) && w.level === plan.level
+    w.category === actualCategory && w.level === plan.level
   );
 
   const exercises = routineDetails ? routineDetails.exercises : [];
