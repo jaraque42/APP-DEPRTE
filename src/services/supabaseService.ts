@@ -38,59 +38,7 @@ export const getActiveUser = async () => {
   return session?.user || null;
 };
 
-export const handleLogin = async (email: string, password: string) => {
-  if (IS_MOCK_MODE) {
-    mockUser = { id: 'mock-user-123', email };
-    setLocal('user', mockUser);
-    triggerMockAuthChange('SIGNED_IN');
-    return mockUser;
-  }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  return data.user;
-};
-
-export const handleSignUp = async (email: string, password: string) => {
-  if (IS_MOCK_MODE) {
-    mockUser = { id: 'mock-user-123', email };
-    mockUserDoc = { id: mockUser.id, name: email.split('@')[0], onboarding_complete: false };
-    
-    // Simulate SQL Trigger: Auto-assign "Fuerza - Principiante" default plan
-    mockWorkoutPlans = [{
-      id: 'default_plan_123',
-      routine_id: 'Fuerza',
-      category: 'fuerza',
-      level: 'Principiante',
-      days: ['Lunes', 'Miércoles', 'Viernes'],
-      duration_weeks: 4,
-      created_at: new Date().toISOString()
-    }];
-
-    setLocal('user', mockUser);
-    setLocal('user_doc', mockUserDoc);
-    setLocal('workout_plans', mockWorkoutPlans);
-    
-    triggerMockAuthChange('SIGNED_IN');
-    return mockUser;
-  }
-
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw error;
-  
-  if (data.user) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert([
-        { id: data.user.id, name: email.split('@')[0], onboarding_complete: false }
-      ]);
-    if (profileError && profileError.code !== '23505') {
-        console.error("Error creating profile", profileError);
-    }
-  }
-  
-  return data.user;
-};
 
 export const getUserDoc = async () => {
   if (IS_MOCK_MODE) return mockUserDoc;
@@ -173,15 +121,13 @@ export const finishOnboardingData = async (formData: any) => {
       target_protein: p,
       target_carbs: c,
       target_fats: f,
-      onboarding_complete: true 
+      onboarding_complete: true,
+      routineDays: formData.routineDays,
+      routineCategory: formData.routineCategory,
+      routineLevel: formData.routineLevel
   };
 
-  await actions.finishMongoOnboarding(user.id, profileData, formData.routineDays ? {
-      routine_id: formData.routineCategory,
-      category: formData.routineCategory.toLowerCase(),
-      level: formData.routineLevel,
-      days: formData.routineDays
-  } : null);
+  await actions.finishMongoOnboarding(user.id, profileData);
   return true;
 };
 
@@ -245,15 +191,7 @@ export const logFoodEntry = async (food: any, amount: number, meal_type: string 
     return { success: true };
   }
 
-  await actions.logMongoFoodEntry(user.id, {
-      food_id: food.id,
-      amount,
-      kcal_total,
-      p_total,
-      c_total,
-      f_total,
-      meal_type
-  });
+  await actions.logMongoFoodEntry(user.id, food, amount, meal_type);
   return { success: true };
 };
 
@@ -303,14 +241,7 @@ export const getDetailedFoodLogs = async () => {
 
 // ... resto de funciones se mantienen iguales ...
 
-export const getTodayPlan = async (userId: string) => {
-  if (IS_MOCK_MODE) return { diet: null, workout: null };
-  const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
-  
-  const { data: diet } = await supabase.from('diets').select('*').eq('user_id', userId).eq('day_of_week', today).single();
-  const { data: workout } = await supabase.from('workouts').select('*').eq('user_id', userId).eq('day_of_week', today).single();
-  return { diet, workout };
-};
+
 
 export const saveWorkoutPlan = async (routineId: string, category: string, level: string, daysOfWeek: string[], durationWeeks: number) => {
   const user = await getActiveUser();
