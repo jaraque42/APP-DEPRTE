@@ -1,0 +1,121 @@
+.container {
+  min-height: 100vh;
+  background: var(--background);
+  padding: 40px 24px 80px;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.updated {
+  color: var(--secondary-text);
+  font-size: 0.85rem;
+  margin-bottom: 40px;
+}
+
+.section {
+  margin-bottom: 36px;
+}
+
+.section h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 12px;
+}
+
+.section p {
+  color: var(--secondary-text);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.cookieCard {
+  background: #161616;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cookieCard h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 8px;
+}
+
+.cookieCard p {
+  color: var(--secondary-text);
+  font-size: 0.85rem;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.table td {
+  padding: 10px 12px;
+  color: var(--secondary-text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.table code {
+  background: rgba(223, 255, 0, 0.08);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.backBtn {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: #161616;
+  color: var(--foreground);
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.backBtn:hover {
+  background: #222;
+}
