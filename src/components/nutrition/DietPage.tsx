@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import styles from "./DietPage.module.css";
-import { getTodayConsumption, getDetailedFoodLogs, logFoodEntry } from "@/services/supabaseService";
+import { getTodayConsumption, getDetailedFoodLogs, logFoodEntry, deleteFoodEntry } from "@/services/supabaseService";
 import { useAuth } from "@/components/auth/AuthContext";
-import { Apple, Plus, Utensils, Settings } from "lucide-react";
+import { Apple, Plus, Utensils, Settings, Trash2 } from "lucide-react";
 import AddFoodModal from "@/components/dashboard/AddFoodModal";
 import AdjustMacrosModal from "./AdjustMacrosModal";
 
@@ -121,16 +121,32 @@ export default function DietPage() {
                 </div>
                 <div className={styles.logsList}>
                   {group.logs.map((log) => (
-                    <div key={log.id} className={styles.logItem}>
+                    <div key={log.id || log._id} className={styles.logItem}>
                       <div className={styles.logMainInfo}>
-                        <span className={styles.itemName}>{log.food_library?.name || 'Alimento desconocido'}</span>
-                        <span className={styles.itemMeta}>{log.amount} {log.food_library?.unit || 'g'} • {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className={styles.itemName}>{log.food_library?.name || log.food_name || 'Alimento'}</span>
+                        <span className={styles.itemMeta}>{log.amount} {log.food_library?.unit || 'g'} • {new Date(log.created_at || log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
-                      <div className={styles.logMacros}>
-                        <span className={styles.itemKcal}>{log.kcal_total} kcal</span>
-                        <span className={styles.itemMacrosShort}>
-                          {Math.round(log.p_total)}P {Math.round(log.c_total)}C {Math.round(log.f_total)}F
-                        </span>
+                      <div className={styles.logActions}>
+                        <div className={styles.logMacros}>
+                          <span className={styles.itemKcal}>{Math.round(log.kcal_total)} kcal</span>
+                          <span className={styles.itemMacrosShort}>
+                            {Math.round(log.p_total)}P {Math.round(log.c_total)}C {Math.round(log.f_total)}F
+                          </span>
+                        </div>
+                        <button 
+                          className={styles.deleteBtn}
+                          onClick={async () => {
+                            try {
+                              await deleteFoodEntry(log.id || log._id);
+                              await fetchDietData();
+                            } catch(e) {
+                              console.error('Error deleting entry', e);
+                            }
+                          }}
+                          title="Eliminar entrada"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
                   ))}

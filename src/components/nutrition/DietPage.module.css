@@ -107,6 +107,12 @@
   color: var(--secondary-text);
 }
 
+.logActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .logMacros {
   text-align: right;
 }
@@ -120,6 +126,23 @@
 .itemMacrosShort {
   font-size: 0.75rem;
   color: var(--secondary-text);
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.deleteBtn:hover {
+  color: #ff3b30;
+  background: rgba(255, 59, 48, 0.1);
 }
 
 .addBtn {

@@ -238,6 +238,20 @@ export const getDetailedFoodLogs = async () => {
   }
 };
 
+export const deleteFoodEntry = async (logId: string) => {
+  const user = await getActiveUser();
+  if (!user) throw new Error("No authenticated user");
+
+  if (IS_MOCK_MODE) {
+    const idx = mockFoodLogs.findIndex((_, i) => `log-${i}` === logId);
+    if (idx >= 0) mockFoodLogs.splice(idx, 1);
+    setLocal('food_logs', mockFoodLogs);
+    return { success: true };
+  }
+
+  return await actions.deleteMongoFoodEntry(user.id, logId);
+};
+
 
 // ... resto de funciones se mantienen iguales ...
 

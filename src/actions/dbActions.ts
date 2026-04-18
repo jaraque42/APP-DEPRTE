@@ -174,8 +174,35 @@ export async function getMongoDailyConsumption(userId: string) {
 export async function getMongoDetailedFoodLogs(userId: string) {
     await connectToDatabase();
     const today = new Date().toISOString().split('T')[0];
-    const logs = await FoodLog.find({ user_id: userId, log_date: today }).sort({ createdAt: -1 });
-    return JSON.parse(JSON.stringify(logs));
+    const logs = await FoodLog.find({ user_id: userId, log_date: today })
+        .populate('food_library')
+        .sort({ createdAt: -1 });
+    
+    // Map to ensure food_library.name is always available via food_name fallback
+    const mapped = logs.map(log => {
+        const obj = log.toObject();
+        if (!obj.food_library || !obj.food_library.name) {
+            obj.food_library = { name: obj.food_name || 'Alimento', unit: 'g' };
+        }
+        return obj;
+    });
+    return JSON.parse(JSON.stringify(mapped));
+}
+
+export async function deleteMongoFoodEntry(userId: string, logId: string) {
+    await connectToDatabase();
+    const log = await FoodLog.findOne({ _id: logId, user_id: userId });
+    if (!log) return { error: 'Entrada no encontrada' };
+
+    // Subtract from daily log
+    const today = log.log_date;
+    await DailyLog.findOneAndUpdate(
+        { user_id: userId, log_date: today },
+        { $inc: { calories_consumed: -log.kcal_total } }
+    );
+
+    await FoodLog.deleteOne({ _id: logId });
+    return { success: true };
 }
 
 export async function getMongoWeeklyLogs(userId: string) {
