@@ -7,12 +7,6 @@
   background-color: var(--background);
   padding: 24px;
   animation: slideUpIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-}
-
-.fadeOut {
-  opacity: 0;
-  transform: translateY(-20px);
 }
 
 .authBox {
@@ -65,8 +59,12 @@
 
 .inputField:focus {
   outline: none;
-  background-color: rgba(255, 255, 255, 0.05); /* un pelin mas claro */
+  background-color: rgba(255, 255, 255, 0.05);
   border-bottom-color: var(--accent);
+}
+
+.inputField:disabled {
+  opacity: 0.5;
 }
 
 .errorText {
@@ -76,6 +74,65 @@
   margin-top: -8px;
 }
 
+/* Password Strength Indicator */
+.strengthContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: -8px;
+}
+
+.strengthBarBg {
+  width: 100%;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strengthBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strengthLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reqList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reqList li {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  transition: color 0.2s ease;
+}
+
+.reqList li::before {
+  content: "✕ ";
+  color: #ff3b30;
+}
+
+.reqList li.reqMet {
+  color: #30d158;
+}
+
+.reqList li.reqMet::before {
+  content: "✓ ";
+  color: #30d158;
+}
+
+/* Buttons */
 .submitBtn {
   width: 100%;
   padding: 18px;
@@ -90,11 +147,17 @@
   letter-spacing: -0.02em;
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   box-shadow: 0 8px 30px rgba(223, 255, 0, 0.2);
+  border: none;
 }
 
 .submitBtn:active {
   transform: scale(0.95);
   box-shadow: 0 4px 15px rgba(223, 255, 0, 0.1);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .toggleModeBtn {
@@ -114,22 +177,7 @@
   text-decoration-color: var(--foreground);
 }
 
-.successIcon {
-  font-size: 4rem;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.footerNote {
-  margin-top: 32px;
-  color: var(--secondary-text);
-  font-size: 0.8rem;
-  text-align: center;
-  opacity: 0.7;
-}
-
 @keyframes slideUpIn {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
