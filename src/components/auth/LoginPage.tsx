@@ -5,33 +5,49 @@ import styles from "./LoginPage.module.css";
 import { useAuth } from "./AuthContext";
 
 export default function LoginPage() {
-  const { login, register } = useAuth();
-  const [isRegistering, setIsRegistering] = useState(false);
+  const { sendMagicLink } = useAuth();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [successMsg, setSuccessMsg] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
+    setLoading(true);
     
     try {
-      if (isRegistering) {
-        await register(email, password);
-      } else {
-        await login(email, password);
-      }
-      // Si fue exitoso se desvanecerá gracias al Context re-renderizando Home/layout,
-      // pero podemos provocar una mini-transición visual local si es necesario.
-      setIsFadingOut(true);
+      await sendMagicLink(email);
+      setSuccessMsg(true);
     } catch (err: any) {
-      setErrorMsg(err.message || "Credenciales inválidas, intenta de nuevo.");
+      setErrorMsg(err.message || "Error al enviar el enlace. Intenta de nuevo.");
+      setLoading(false);
     }
   };
 
+  if (successMsg) {
+    return (
+      <div className={styles.authContainer}>
+        <div className={styles.authBox}>
+          <div className={styles.successIcon}>📧</div>
+          <h1 className={styles.brandTitle}>REVISA TU CORREO</h1>
+          <p className={styles.subtitle}>
+            Hemos enviado un enlace de acceso a <strong>{email}</strong>. 
+            Haz clic en el botón del correo para entrar a la app.
+          </p>
+          <button 
+            className={styles.toggleModeBtn} 
+            onClick={() => setSuccessMsg(false)}
+          >
+            Volver a intentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${styles.authContainer} ${isFadingOut ? styles.fadeOut : ''}`}>
+    <div className={styles.authContainer}>
       <div className={styles.authBox}>
         <img 
           src="/logo.png" 
@@ -40,7 +56,7 @@ export default function LoginPage() {
         />
         <h1 className={styles.brandTitle}>EOLCAIM<span style={{color: "var(--accent)"}}>FIT</span></h1>
         <p className={styles.subtitle}>
-          {isRegistering ? "Crea tu cuenta Atleta" : "Bienvenido de vuelta"}
+          Entra con tu email (sin contraseñas)
         </p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -52,35 +68,20 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required 
               className={styles.inputField} 
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <input 
-              type="password" 
-              placeholder="Contraseña" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-              className={styles.inputField} 
+              disabled={loading}
             />
           </div>
           
           {errorMsg && <p className={styles.errorText}>{errorMsg}</p>}
 
-          <button type="submit" className={styles.submitBtn}>
-            {isRegistering ? "Unirse al equipo" : "Entrar a la app"}
+          <button type="submit" className={styles.submitBtn} disabled={loading}>
+            {loading ? "Enviando enlace..." : "Recibir Link de Acceso"}
           </button>
         </form>
 
-        <button 
-          className={styles.toggleModeBtn} 
-          onClick={() => {
-            setIsRegistering(!isRegistering);
-            setErrorMsg("");
-          }}
-        >
-          {isRegistering ? "¿Ya tienes una cuenta? Únete." : "¿Elegible para atleta? Regístrate."}
-        </button>
+        <p className={styles.footerNote}>
+          Si no tienes cuenta, se creará una automáticamente al entrar.
+        </p>
       </div>
     </div>
   );

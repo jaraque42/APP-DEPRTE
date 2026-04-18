@@ -11,14 +11,13 @@ interface AuthContextType {
   loading: boolean;
   userDoc: any | null;
   refreshProfile: () => Promise<void>;
-  login: (e: string, p: string) => Promise<void>;
-  register: (e: string, p: string) => Promise<void>;
+  sendMagicLink: (email: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
     user: null, loading: true, userDoc: null, 
-    refreshProfile: async () => {}, login: async () => {}, register: async () => {}, logout: async () => {} 
+    refreshProfile: async () => {}, sendMagicLink: async () => {}, logout: async () => {} 
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -50,15 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [status, session]);
 
-  const login = async (e: string, p: string) => {
-      const res = await signIn('credentials', { email: e, password: p, redirect: false });
+  const sendMagicLink = async (email: string) => {
+      const res = await signIn('email', { email, redirect: false });
       if (res?.error) throw new Error(res.error);
-  };
-
-  const register = async (e: string, p: string) => {
-      const res = await registerMongoUser(e, p);
-      if (res?.error) throw new Error(res.error);
-      await login(e, p);
   };
 
   const logout = async () => {
@@ -70,8 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: status === 'loading',
     userDoc,
     refreshProfile,
-    login,
-    register,
+    sendMagicLink,
     logout
   };
 

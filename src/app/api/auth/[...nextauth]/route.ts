@@ -1,11 +1,19 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import EmailProvider from 'next-auth/providers/email';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
+import clientPromise from '@/lib/mongodbClient';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/lib/models/User';
 import bcrypt from 'bcryptjs';
 
 const handler = NextAuth({
+  adapter: MongoDBAdapter(clientPromise as any),
   providers: [
+    EmailProvider({
+      server: process.env.EMAIL_SERVER,
+      from: process.env.EMAIL_FROM,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -21,11 +29,11 @@ const handler = NextAuth({
 
         const user = await User.findOne({ email: credentials.email });
 
-        if (!user) {
-          throw new Error('No user found');
+        if (!user || (!user.passwordHash && !user.password)) {
+          throw new Error('No user found with those credentials');
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash || user.password);
 
         if (!isValid) {
           throw new Error('Invalid password');
@@ -58,8 +66,10 @@ const handler = NextAuth({
   },
   pages: {
     signIn: '/',
+    verifyRequest: '/verify-request', // new page we will create
   },
   secret: process.env.NEXTAUTH_SECRET || "eolcaimfit_super_secret_jwt_key_2026_dev",
 });
 
 export { handler as GET, handler as POST };
+
