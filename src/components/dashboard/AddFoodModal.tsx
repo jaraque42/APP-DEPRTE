@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './AddFoodModal.module.css';
-import { searchFoodLibrary, addFoodToLibrary } from '@/services/supabaseService';
+import { searchFoodLibrary, addFoodToLibrary, fetchProductByBarcode } from '@/services/supabaseService';
 import { useRef } from 'react';
+import { Camera, Loader2 } from 'lucide-react';
+import BarcodeScanner from './BarcodeScanner';
 
 
 interface FoodItem {
@@ -25,6 +27,8 @@ export default function AddFoodModal({ onAddFood, onClose }: { onAddFood: (food:
   const [mealType, setMealType] = useState<string>("otros");
   const [isFocused, setIsFocused] = useState(false);
   const [isCreatingFood, setIsCreatingFood] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isFetchingBarcode, setIsFetchingBarcode] = useState(false);
   const [newFoodForm, setNewFoodForm] = useState({ name: "", kcal_per_100g: 0, protein_per_100g: 0, carbs_per_100g: 0, fat_per_100g: 0 });
   const gramsInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +71,32 @@ export default function AddFoodModal({ onAddFood, onClose }: { onAddFood: (food:
     return () => clearTimeout(timeout);
   }, [searchTerm, isFocused]);
 
+  const handleScanSuccess = async (barcode: string) => {
+    setIsScanning(false);
+    setIsFetchingBarcode(true);
+    try {
+      const product = await fetchProductByBarcode(barcode);
+      if (product) {
+        setIsCreatingFood(true);
+        setNewFoodForm({
+          name: product.name,
+          kcal_per_100g: product.kcal_per_100g,
+          protein_per_100g: product.protein_per_100g,
+          carbs_per_100g: product.carbs_per_100g,
+          fat_per_100g: product.fat_per_100g
+        });
+        setSelectedFood(null);
+      } else {
+        alert("No se encontró el producto en la base de datos de OpenFoodFacts 😔");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Hubo un error al buscar el producto");
+    } finally {
+      setIsFetchingBarcode(false);
+    }
+  };
+
   const calculateTotal = (valPer100: number) => Math.round((valPer100 * grams) / 100);
 
   // Helper macro dominancia tip (azul: proteina, amarillo: grasa)
@@ -94,6 +124,15 @@ export default function AddFoodModal({ onAddFood, onClose }: { onAddFood: (food:
             onChange={(e) => setSearchTerm(e.target.value)}
             value={searchTerm}
           />
+          <button 
+            type="button"
+            className={styles.scanBtn}
+            onClick={() => setIsScanning(true)}
+            title="Escanear código de barras"
+            disabled={isFetchingBarcode}
+          >
+            {isFetchingBarcode ? <Loader2 className={styles.spin} size={20} /> : <Camera size={20} />}
+          </button>
         </div>
 
         <div className={styles.resultsList}>
@@ -283,6 +322,13 @@ export default function AddFoodModal({ onAddFood, onClose }: { onAddFood: (food:
               ¡A la saca! ⚡
             </button>
           </div>
+        )}
+
+        {isScanning && (
+          <BarcodeScanner 
+            onScanSuccess={handleScanSuccess} 
+            onClose={() => setIsScanning(false)} 
+          />
         )}
       </div>
     </div>

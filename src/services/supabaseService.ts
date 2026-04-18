@@ -329,6 +329,31 @@ export const addFoodToLibrary = async (food: { name: string, kcal_per_100g: numb
   return await actions.addMongoFoodToLibrary(newFood);
 };
 
+export const fetchProductByBarcode = async (barcode: string) => {
+  try {
+    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+    const data = await response.json();
+
+    if (data.status === 1 && data.product) {
+      const p = data.product;
+      const nutriments = p.nutriments || {};
+      
+      return {
+        name: p.product_name || p.product_name_es || 'Producto desconocido',
+        kcal_per_100g: Math.round(nutriments['energy-kcal_100g'] || (nutriments['energy-kj_100g'] / 4.184) || 0),
+        protein_per_100g: nutriments.proteins_100g || 0,
+        carbs_per_100g: nutriments.carbohydrates_100g || 0,
+        fat_per_100g: nutriments.fat_100g || 0,
+        unit: 'g'
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching from OpenFoodFacts:", error);
+    return null;
+  }
+};
+
 let mockDailyLogs: any[] = [];
 
 export const logDailyStatus = async (userId: string, type: 'diet' | 'workout') => {

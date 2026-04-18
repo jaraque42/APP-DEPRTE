@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.103.3",
     "bcryptjs": "^2.4.3",
     "date-fns": "^4.1.0",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.8.0",
     "mongodb": "^6.5.0",
     "mongoose": "^8.3.0",
@@ -25,8 +26,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
-    "@types/nodemailer": "^6.4.15",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.15",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
