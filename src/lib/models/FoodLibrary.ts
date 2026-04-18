@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IFoodLibrary extends Document {
   name: string;
+  category?: string;
   kcal_per_100g: number;
   protein_per_100g: number;
   carbs_per_100g: number;
@@ -11,6 +12,7 @@ export interface IFoodLibrary extends Document {
 
 const FoodLibrarySchema: Schema = new Schema({
   name: { type: String, required: true },
+  category: { type: String, default: 'General' },
   kcal_per_100g: { type: Number, required: true },
   protein_per_100g: { type: Number, required: true },
   carbs_per_100g: { type: Number, required: true },
