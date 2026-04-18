@@ -11,8 +11,16 @@ const handler = NextAuth({
   adapter: MongoDBAdapter(clientPromise as any),
   providers: [
     EmailProvider({
-      server: process.env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM,
+      server: {
+        host: 'smtp.resend.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'resend',
+          pass: process.env.RESEND_API_KEY,
+        },
+      },
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
     }),
     CredentialsProvider({
       name: 'Credentials',
