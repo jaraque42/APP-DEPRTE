@@ -138,7 +138,7 @@ export default function DietPage() {
                           onClick={async () => {
                             try {
                               await deleteFoodEntry(log.id || log._id);
-                              await fetchDietData();
+                              await fetchData();
                             } catch(e) {
                               console.error('Error deleting entry', e);
                             }
