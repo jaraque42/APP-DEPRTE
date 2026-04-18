@@ -515,3 +515,51 @@
   border: 1px dashed rgba(255, 255, 255, 0.2);
 }
 
+/* Appointment Section */
+.appointmentSection {
+  margin-top: 24px;
+}
+
+.appointmentBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(223, 255, 0, 0.08), rgba(223, 255, 0, 0.02));
+  border: 1px solid rgba(223, 255, 0, 0.2);
+  border-radius: 16px;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+}
+
+.appointmentBtn:hover {
+  background: linear-gradient(135deg, rgba(223, 255, 0, 0.15), rgba(223, 255, 0, 0.05));
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(223, 255, 0, 0.1);
+}
+
+.appointmentBtn svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.appointmentBtn div {
+  display: flex;
+  flex-direction: column;
+}
+
+.appointmentTitle {
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.appointmentDesc {
+  font-size: 0.8rem;
+  color: var(--secondary-text);
+  margin-top: 2px;
+}

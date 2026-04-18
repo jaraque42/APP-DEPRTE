@@ -3,18 +3,20 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
 import { syncOfflineAction, processOfflineQueue, logFoodEntry, getTodayConsumption, getWorkoutPlan, getDetailedFoodLogs } from "@/services/supabaseService";
-import { Activity, Apple, WifiOff, LogOut } from "lucide-react";
+import { Activity, Apple, WifiOff, LogOut, CalendarDays } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 
 
 import CalendarHeatmap from "./CalendarHeatmap";
 import AddFoodModal from "./AddFoodModal";
+import AppointmentModal from "./AppointmentModal";
 
 export default function Dashboard({ onStartWorkout }: { onStartWorkout?: (plan: any) => void }) {
   const { user, userDoc, logout } = useAuth();
 
   const [showOfflineToast, setShowOfflineToast] = useState(false);
   const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
+  const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [consumption, setConsumption] = useState({ kcal: 0, p: 0, c: 0, f: 0 });
   const [workoutPlans, setWorkoutPlans] = useState<any[]>([]);
   const [foodLogs, setFoodLogs] = useState<any[]>([]);
@@ -180,6 +182,25 @@ export default function Dashboard({ onStartWorkout }: { onStartWorkout?: (plan: 
           );
         })()}
       </section>
+
+      {/* Appointment Button */}
+      <section className={styles.appointmentSection}>
+        <button className={styles.appointmentBtn} onClick={() => setIsAppointmentOpen(true)}>
+          <CalendarDays size={22} />
+          <div>
+            <span className={styles.appointmentTitle}>Solicitar Cita</span>
+            <span className={styles.appointmentDesc}>Reserva una sesión con un profesional</span>
+          </div>
+        </button>
+      </section>
+
+      {isAppointmentOpen && (
+        <AppointmentModal
+          userName={userDoc?.name || user?.name || 'Atleta'}
+          userEmail={user?.email || ''}
+          onClose={() => setIsAppointmentOpen(false)}
+        />
+      )}
 
       {isFoodModalOpen && (
         <AddFoodModal 
