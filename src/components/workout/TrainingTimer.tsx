@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './TrainingTimer.module.css';
+import { playTickSound, playSuccessSound } from '@/lib/audioUtils';
 
 export default function TrainingTimer({ initialSeconds = 60, onFinished }: { initialSeconds: number, onFinished?: () => void }) {
   const [seconds, setSeconds] = useState(initialSeconds);
@@ -14,11 +15,13 @@ export default function TrainingTimer({ initialSeconds = 60, onFinished }: { ini
   useEffect(() => {
     let interval: any = null;
     if (isActive && seconds > 0) {
+      if (seconds <= 3) playTickSound();
       interval = setInterval(() => {
         setSeconds((s) => s - 1);
       }, 1000);
     } else if (seconds === 0) {
       clearInterval(interval);
+      playSuccessSound();
       if (onFinished) onFinished();
       setIsActive(false);
     }

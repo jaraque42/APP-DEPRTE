@@ -10,6 +10,7 @@ import DietPage from "@/components/nutrition/DietPage";
 import WorkoutPage from "@/components/workout/WorkoutPage";
 import CalendarPage from "@/components/calendar/CalendarPage";
 import WorkoutSession from "@/components/workout/WorkoutSession";
+import { initAudio } from "@/lib/audioUtils";
 
 export default function Home() {
   const { user, userDoc, loading } = useAuth();
@@ -17,6 +18,7 @@ export default function Home() {
   const [activeSessionPlan, setActiveSessionPlan] = useState<any>(null);
 
   const startWorkout = (plan: any) => {
+    initAudio();
     setActiveSessionPlan(plan);
     setActiveSection("session");
   };

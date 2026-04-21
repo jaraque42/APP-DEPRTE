@@ -5,6 +5,7 @@ import { Play, Pause, Square, ChevronLeft } from 'lucide-react';
 import { logDailyStatus } from '@/services/supabaseService';
 import { useAuth } from '@/components/auth/AuthContext';
 import TrainingTimer from './TrainingTimer';
+import { playTickSound, playSuccessSound } from '@/lib/audioUtils';
 
 export default function WorkoutSession({ plan, onComplete }: { plan: any, onComplete: () => void }) {
   const { user } = useAuth();
@@ -26,10 +27,12 @@ export default function WorkoutSession({ plan, onComplete }: { plan: any, onComp
   useEffect(() => {
     let interval: any;
     if (phase === 'countdown' && countdown > 0) {
+      playTickSound();
       interval = setInterval(() => {
         setCountdown(prev => prev - 1);
       }, 1000);
     } else if (phase === 'countdown' && countdown === 0) {
+      playSuccessSound();
       setPhase('active');
     }
     return () => clearInterval(interval);
