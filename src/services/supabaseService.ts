@@ -441,3 +441,91 @@ export const onAuthStateChange = (callback: (event: string, session: any) => voi
   return { data: { subscription: { unsubscribe: () => {} } } };
 };
 
+// --- SOCIAL SERVICES ---
+
+let mockFriendships: any[] = getLocal('friendships') || [];
+
+export const searchUsers = async (query: string) => {
+  const user = await getActiveUser();
+  if (!user) return [];
+
+  if (IS_MOCK_MODE) {
+    // En mock buscamos en una lista estática de "usuarios"
+    const mockUsers = [
+      { _id: 'u1', name: 'Carlos Trainer', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos' },
+      { _id: 'u2', name: 'Ana Fitness', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ana' },
+      { _id: 'u3', name: 'Marcos Power', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcos' }
+    ];
+    return mockUsers.filter(u => u.name.toLowerCase().includes(query.toLowerCase()) && u._id !== user.id);
+  }
+
+  return await actions.searchMongoUsers(query, user.id);
+};
+
+export const sendFriendRequest = async (recipientId: string) => {
+  const user = await getActiveUser();
+  if (!user) throw new Error("No user");
+
+  if (IS_MOCK_MODE) {
+    mockFriendships.push({
+      _id: `req_${Date.now()}`,
+      requester: user.id,
+      recipient: recipientId,
+      status: 'pending'
+    });
+    setLocal('friendships', mockFriendships);
+    return { success: true };
+  }
+
+  return await actions.sendMongoFriendRequest(user.id, recipientId);
+};
+
+export const getFriendRequests = async () => {
+  const user = await getActiveUser();
+  if (!user) return [];
+
+  if (IS_MOCK_MODE) {
+    return mockFriendships.filter(f => f.recipient === user.id && f.status === 'pending').map(f => ({
+      ...f,
+      requester: { name: 'Usuario Mock', avatar_url: '' }
+    }));
+  }
+
+  return await actions.getMongoFriendRequests(user.id);
+};
+
+export const respondToFriendRequest = async (requestId: string, status: 'accepted' | 'rejected') => {
+  if (IS_MOCK_MODE) {
+    const f = mockFriendships.find(f => f._id === requestId);
+    if (f) f.status = status;
+    setLocal('friendships', mockFriendships);
+    return { success: true };
+  }
+
+  return await actions.respondToMongoFriendRequest(requestId, status);
+};
+
+export const getFriendsList = async () => {
+  const user = await getActiveUser();
+  if (!user) return [];
+
+  if (IS_MOCK_MODE) {
+    return mockFriendships
+      .filter(f => (f.requester === user.id || f.recipient === user.id) && f.status === 'accepted')
+      .map(f => ({
+        _id: f.requester === user.id ? f.recipient : f.requester,
+        name: 'Amigo Fit',
+        avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=friend'
+      }));
+  }
+
+  return await actions.getMongoFriendsList(user.id);
+};
+
+export const getFriendActivity = async (friendId: string) => {
+  if (IS_MOCK_MODE) {
+    return { calories: 1200, hasWorkout: true, status: 'perfect' };
+  }
+  return await actions.getMongoFriendActivity(friendId);
+};
+

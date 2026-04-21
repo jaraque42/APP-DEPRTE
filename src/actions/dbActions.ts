@@ -6,6 +6,7 @@ import WorkoutPlan from "@/lib/models/WorkoutPlan";
 import FoodLibrary from "@/lib/models/FoodLibrary";
 import DailyLog from "@/lib/models/DailyLog";
 import FoodLog from "@/lib/models/FoodLog";
+import Friendship from "@/lib/models/Friendship";
 
 import bcrypt from "bcryptjs";
 
@@ -245,4 +246,87 @@ export async function logMongoDailyStatus(userId: string) {
         { upsert: true, new: true }
     );
     return JSON.parse(JSON.stringify(log));
+}
+
+// SOCIAL ACTIONS
+export async function searchMongoUsers(query: string, currentUserId: string) {
+    await connectToDatabase();
+    const regex = new RegExp(query, 'i');
+    // Buscar usuarios por nombre o email, excluyendo al actual
+    const users = await User.find({
+        $and: [
+            { _id: { $ne: currentUserId } },
+            { $or: [{ name: regex }, { email: regex }] }
+        ]
+    }).select('name email avatar_url bio goals').limit(10);
+    
+    return JSON.parse(JSON.stringify(users));
+}
+
+export async function sendMongoFriendRequest(requesterId: string, recipientId: string) {
+    await connectToDatabase();
+    // Verificar si ya existe una relación
+    const existing = await Friendship.findOne({
+        $or: [
+            { requester: requesterId, recipient: recipientId },
+            { requester: recipientId, recipient: requesterId }
+        ]
+    });
+
+    if (existing) return { error: 'Ya existe una solicitud o amistad' };
+
+    const request = await Friendship.create({
+        requester: requesterId,
+        recipient: recipientId,
+        status: 'pending'
+    });
+    return JSON.parse(JSON.stringify(request));
+}
+
+export async function getMongoFriendRequests(userId: string) {
+    await connectToDatabase();
+    const requests = await Friendship.find({ 
+        recipient: userId, 
+        status: 'pending' 
+    }).populate('requester', 'name email avatar_url');
+    
+    return JSON.parse(JSON.stringify(requests));
+}
+
+export async function respondToMongoFriendRequest(requestId: string, status: 'accepted' | 'rejected') {
+    await connectToDatabase();
+    const request = await Friendship.findByIdAndUpdate(requestId, { status }, { new: true });
+    return JSON.parse(JSON.stringify(request));
+}
+
+export async function getMongoFriendsList(userId: string) {
+    await connectToDatabase();
+    const friendships = await Friendship.find({
+        $and: [
+            { status: 'accepted' },
+            { $or: [{ requester: userId }, { recipient: userId }] }
+        ]
+    }).populate('requester recipient', 'name email avatar_url bio goals');
+
+    const friends = friendships.map(f => {
+        const friend = f.requester._id.toString() === userId ? f.recipient : f.requester;
+        return friend;
+    });
+
+    return JSON.parse(JSON.stringify(friends));
+}
+
+export async function getMongoFriendActivity(friendId: string) {
+    await connectToDatabase();
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Obtener resumen del día del amigo
+    const dailyLog = await DailyLog.findOne({ user_id: friendId, log_date: today });
+    const workout = await WorkoutPlan.findOne({ user_id: friendId });
+
+    return {
+        calories: dailyLog?.calories_consumed || 0,
+        hasWorkout: !!workout,
+        status: dailyLog?.status || 'none'
+    };
 }
