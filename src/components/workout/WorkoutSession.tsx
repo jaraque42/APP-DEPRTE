@@ -67,16 +67,21 @@ export default function WorkoutSession({ plan, onComplete }: { plan: any, onComp
           </button>
           <span className={styles.planTitle}>{plan.routine_id.toUpperCase()} - {plan.level}</span>
         </div>
-        <a 
-          href="https://open.spotify.com" 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <button 
+          onClick={() => {
+            // Intenta abrir la app nativa primero
+            window.location.href = "spotify:"; 
+            // Si después de 500ms no ha pasado nada, abre la web
+            setTimeout(() => {
+              window.open("https://open.spotify.com", "_blank");
+            }, 500);
+          }} 
           className={styles.spotifyBtn}
-          title="Abrir Spotify"
+          title="Abrir Spotify App"
         >
           <Music size={20} />
-          <span>Spotify</span>
-        </a>
+          <span>Abrir Spotify</span>
+        </button>
       </header>
 
       {/* Exercise List */}
