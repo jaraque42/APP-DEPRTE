@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './ProfilePage.module.css';
 import { useAuth } from '@/components/auth/AuthContext';
 import { updateUserProfile } from '@/services/supabaseService';
-import { User, Target, FileText, Camera, Check, Save } from 'lucide-react';
+import { User, Target, FileText, Camera, Check, Save, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function ProfilePage() {
   const { userDoc, logout } = useAuth();
@@ -13,7 +13,9 @@ export default function ProfilePage() {
     name: '',
     bio: '',
     goals: '',
-    avatar_url: ''
+    avatar_url: '',
+    share_nutrition: true,
+    share_workouts: true
   });
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState(false);
@@ -24,7 +26,9 @@ export default function ProfilePage() {
         name: userDoc.name || '',
         bio: userDoc.bio || '',
         goals: userDoc.goals || '',
-        avatar_url: userDoc.avatar_url || ''
+        avatar_url: userDoc.avatar_url || '',
+        share_nutrition: userDoc.share_nutrition !== false,
+        share_workouts: userDoc.share_workouts !== false
       });
     }
   }, [userDoc]);
@@ -200,6 +204,42 @@ export default function ProfilePage() {
             ) : (
               <p className={styles.value}>{formData.goals || 'Sin objetivos definidos.'}</p>
             )}
+          </div>
+        </div>
+
+        <div className={styles.privacySection}>
+          <h3 className={styles.privacyTitle}>
+            <Lock size={18} />
+            Privacidad de Comunidad
+          </h3>
+          <div className={styles.privacyGrid}>
+            <div className={styles.privacyItem}>
+              <div className={styles.privacyInfo}>
+                <p className={styles.privacyLabel}>Compartir Nutrición</p>
+                <p className={styles.privacyDesc}>Tus amigos verán tus calorías diarias.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${formData.share_nutrition ? styles.toggleOn : ''}`}
+                onClick={() => isEditing && setFormData({...formData, share_nutrition: !formData.share_nutrition})}
+                disabled={!isEditing}
+              >
+                {formData.share_nutrition ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
+            </div>
+
+            <div className={styles.privacyItem}>
+              <div className={styles.privacyInfo}>
+                <p className={styles.privacyLabel}>Compartir Entrenamientos</p>
+                <p className={styles.privacyDesc}>Tus amigos sabrán si has entrenado hoy.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${formData.share_workouts ? styles.toggleOn : ''}`}
+                onClick={() => isEditing && setFormData({...formData, share_workouts: !formData.share_workouts})}
+                disabled={!isEditing}
+              >
+                {formData.share_workouts ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
+            </div>
           </div>
         </div>
 

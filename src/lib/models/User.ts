@@ -18,6 +18,8 @@ export interface IUser extends Document {
   bio?: string;
   goals?: string;
   avatar_url?: string;
+  share_nutrition?: boolean;
+  share_workouts?: boolean;
 }
 
 const UserSchema: Schema = new Schema({
@@ -37,7 +39,9 @@ const UserSchema: Schema = new Schema({
   onboarding_complete: { type: Boolean, default: false },
   bio: { type: String, default: "" },
   goals: { type: String, default: "" },
-  avatar_url: { type: String, default: "" }
+  avatar_url: { type: String, default: "" },
+  share_nutrition: { type: Boolean, default: true },
+  share_workouts: { type: Boolean, default: true }
 }, { timestamps: true });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

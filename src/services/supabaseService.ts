@@ -522,10 +522,79 @@ export const getFriendsList = async () => {
   return await actions.getMongoFriendsList(user.id);
 };
 
+export const removeFriend = async (friendId: string) => {
+  const user = await getActiveUser();
+  if (!user) throw new Error("No user");
+
+  if (IS_MOCK_MODE) {
+    mockFriendships = mockFriendships.filter(f => 
+      !((f.requester === user.id && f.recipient === friendId) || (f.requester === friendId && f.recipient === user.id))
+    );
+    setLocal('friendships', mockFriendships);
+    return { success: true };
+  }
+
+  return await actions.removeMongoFriend(user.id, friendId);
+};
+
 export const getFriendActivity = async (friendId: string) => {
   if (IS_MOCK_MODE) {
     return { calories: 1200, hasWorkout: true, status: 'perfect' };
   }
   return await actions.getMongoFriendActivity(friendId);
+};
+
+// --- CHAT SERVICES ---
+
+let mockMessages: any[] = getLocal('chat_messages') || [];
+
+export const sendMessage = async (recipientId: string, content: string) => {
+  const user = await getActiveUser();
+  if (!user) throw new Error("No user");
+
+  if (IS_MOCK_MODE) {
+    const msg = {
+      _id: `msg_${Date.now()}`,
+      sender: user.id,
+      recipient: recipientId,
+      content,
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+    mockMessages.push(msg);
+    setLocal('chat_messages', mockMessages);
+    return msg;
+  }
+
+  return await actions.sendMongoMessage(user.id, recipientId, content);
+};
+
+export const getMessages = async (friendId: string) => {
+  const user = await getActiveUser();
+  if (!user) return [];
+
+  if (IS_MOCK_MODE) {
+    return mockMessages.filter(m => 
+      (m.sender === user.id && m.recipient === friendId) || 
+      (m.sender === friendId && m.recipient === user.id)
+    );
+  }
+
+  return await actions.getMongoMessages(user.id, friendId);
+};
+
+export const markMessagesRead = async (friendId: string) => {
+  const user = await getActiveUser();
+  if (!user) return;
+
+  if (IS_MOCK_MODE) {
+    mockMessages.forEach(m => {
+      if (m.sender === friendId && m.recipient === user.id) m.read = true;
+    });
+    setLocal('chat_messages', mockMessages);
+    return;
+  }
+
+  return await actions.markMongoMessagesRead(user.id, friendId);
 };
 

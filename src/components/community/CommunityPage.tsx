@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './CommunityPage.module.css';
-import { searchUsers, sendFriendRequest, getFriendRequests, respondToFriendRequest, getFriendsList, getFriendActivity } from '@/services/supabaseService';
-import { Search, UserPlus, Check, X, Users, Activity, Flame, Trophy } from 'lucide-react';
+import { searchUsers, sendFriendRequest, getFriendRequests, respondToFriendRequest, getFriendsList, getFriendActivity, removeFriend, getMessages, sendMessage, markMessagesRead } from '@/services/supabaseService';
+import { Search, UserPlus, Check, X, Users, Activity, Flame, Trophy, MessageCircle, UserMinus, Send, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthContext';
 
 export default function CommunityPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,6 +13,12 @@ export default function CommunityPage() {
   const [friends, setFriends] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'friends' | 'search' | 'requests'>('friends');
+  
+  // Chat State
+  const [selectedFriend, setSelectedFriend] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const { userDoc } = useAuth();
 
   useEffect(() => {
     loadSocialData();
@@ -50,6 +57,42 @@ export default function CommunityPage() {
     await respondToFriendRequest(requestId, status);
     loadSocialData();
   };
+
+  const handleUnfriend = async (friendId: string) => {
+    if (confirm("¿Estás seguro de que quieres eliminar a este amigo?")) {
+      await removeFriend(friendId);
+      loadSocialData();
+    }
+  };
+
+  const openChat = async (friend: any) => {
+    setSelectedFriend(friend);
+    const msgs = await getMessages(friend._id);
+    setMessages(msgs);
+    await markMessagesRead(friend._id);
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedFriend) return;
+    const msg = await sendMessage(selectedFriend._id, newMessage);
+    setMessages([...messages, msg]);
+    setNewMessage('');
+  };
+
+  // Polling para mensajes nuevos
+  useEffect(() => {
+    let interval: any;
+    if (selectedFriend) {
+      interval = setInterval(async () => {
+        const msgs = await getMessages(selectedFriend._id);
+        if (msgs.length !== messages.length) {
+          setMessages(msgs);
+          markMessagesRead(selectedFriend._id);
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [selectedFriend, messages]);
 
   return (
     <div className={styles.communityContainer}>
@@ -167,21 +210,64 @@ export default function CommunityPage() {
                   </div>
 
                   <div className={styles.friendFooter}>
-                    <button className={styles.viewProfileBtn}>Ver Progreso</button>
+                    <button onClick={() => openChat(friend)} className={styles.chatBtn}>
+                      <MessageCircle size={18} />
+                      Chat
+                    </button>
+                    <button onClick={() => handleUnfriend(friend._id)} className={styles.unfriendBtn} title="Eliminar Amigo">
+                      <UserMinus size={18} />
+                    </button>
                   </div>
                 </div>
               ))}
-              {friends.length === 0 && (
-                <div className={styles.noFriends}>
-                  <Users size={48} className={styles.noFriendsIcon} />
-                  <p>Aún no tienes amigos.</p>
-                  <button onClick={() => setActiveTab('search')} className={styles.btnPrimary}>Buscar personas</button>
-                </div>
-              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* Chat Overlay */}
+      {selectedFriend && (
+        <div className={styles.chatOverlay}>
+          <div className={styles.chatWindow}>
+            <header className={styles.chatHeader}>
+              <button onClick={() => setSelectedFriend(null)} className={styles.backBtn}>
+                <ArrowLeft size={20} />
+              </button>
+              <img src={selectedFriend.avatar_url} className={styles.chatAvatar} />
+              <div className={styles.chatUser}>
+                <h4 className={styles.chatName}>{selectedFriend.name}</h4>
+                <p className={styles.chatStatus}>En línea</p>
+              </div>
+            </header>
+
+            <div className={styles.messageList}>
+              {messages.map((msg, i) => {
+                const isMe = msg.sender === userDoc?._id || msg.sender === userDoc?.id;
+                return (
+                  <div key={msg._id || i} className={`${styles.messageWrapper} ${isMe ? styles.myMsgWrapper : ''}`}>
+                    <div className={`${styles.message} ${isMe ? styles.myMsg : styles.friendMsg}`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={styles.chatInput}>
+              <input 
+                type="text" 
+                placeholder="Escribe un mensaje..." 
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              />
+              <button onClick={handleSendMessage} className={styles.sendBtn}>
+                <Send size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

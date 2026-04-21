@@ -7,6 +7,7 @@ import FoodLibrary from "@/lib/models/FoodLibrary";
 import DailyLog from "@/lib/models/DailyLog";
 import FoodLog from "@/lib/models/FoodLog";
 import Friendship from "@/lib/models/Friendship";
+import ChatMessage from "@/lib/models/ChatMessage";
 
 import bcrypt from "bcryptjs";
 
@@ -320,13 +321,69 @@ export async function getMongoFriendActivity(friendId: string) {
     await connectToDatabase();
     const today = new Date().toISOString().split('T')[0];
     
-    // Obtener resumen del día del amigo
-    const dailyLog = await DailyLog.findOne({ user_id: friendId, log_date: today });
-    const workout = await WorkoutPlan.findOne({ user_id: friendId });
+    // Obtener ajustes de privacidad del amigo
+    const friend = await User.findById(friendId).select('share_nutrition share_workouts');
+    if (!friend) return { calories: 0, hasWorkout: false, status: 'none' };
 
-    return {
-        calories: dailyLog?.calories_consumed || 0,
-        hasWorkout: !!workout,
-        status: dailyLog?.status || 'none'
+    let activity: any = {
+        calories: 0,
+        hasWorkout: false,
+        status: 'none'
     };
+
+    if (friend.share_nutrition) {
+        const dailyLog = await DailyLog.findOne({ user_id: friendId, log_date: today });
+        activity.calories = dailyLog?.calories_consumed || 0;
+        activity.status = dailyLog?.status || 'none';
+    }
+
+    if (friend.share_workouts) {
+        const workout = await WorkoutPlan.findOne({ user_id: friendId });
+        activity.hasWorkout = !!workout;
+    }
+
+    return activity;
+}
+
+export async function removeMongoFriend(userId: string, friendId: string) {
+    await connectToDatabase();
+    await Friendship.deleteMany({
+        $or: [
+            { requester: userId, recipient: friendId },
+            { requester: friendId, recipient: userId }
+        ]
+    });
+    return { success: true };
+}
+
+// CHAT ACTIONS
+export async function sendMongoMessage(senderId: string, recipientId: string, content: string) {
+    await connectToDatabase();
+    const msg = await ChatMessage.create({
+        sender: senderId,
+        recipient: recipientId,
+        content
+    });
+    return JSON.parse(JSON.stringify(msg));
+}
+
+export async function getMongoMessages(userId: string, friendId: string) {
+    await connectToDatabase();
+    const messages = await ChatMessage.find({
+        $or: [
+            { sender: userId, recipient: friendId },
+            { sender: friendId, recipient: userId }
+        ]
+    }).sort({ createdAt: 1 });
+    
+    return JSON.parse(JSON.stringify(messages));
+}
+
+export async function markMongoMessagesRead(userId: string, friendId: string) {
+    await connectToDatabase();
+    await ChatMessage.updateMany(
+        { sender: friendId, recipient: userId, read: false },
+        { read: true }
+    );
+    return { success: true };
 }
