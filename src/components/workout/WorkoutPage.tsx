@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styles from './WorkoutPage.module.css';
-import { Dumbbell, Flame, HeartPulse, ActivitySquare, ChevronRight, Play } from 'lucide-react';
+import { Dumbbell, Flame, HeartPulse, ActivitySquare, ChevronRight, Play, Calendar, Download, CheckCircle2 } from 'lucide-react';
 import { WORKOUT_DB } from '@/data/workoutsData';
+import { generateGoogleCalendarLink, downloadICS } from '@/lib/calendarUtils';
 
 const workouts = [
   {
@@ -52,6 +53,8 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [plannedWorkouts, setPlannedWorkouts] = useState<any[]>([]);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [lastSavedPlan, setLastSavedPlan] = useState<{name: string, days: string[]} | null>(null);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -65,7 +68,7 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
     setSelectedDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
   };
 
-  const handleSavePlan = async (routineId: string, category: string, level: string) => {
+  const handleSavePlan = async (routineId: string, category: string, level: string, name: string) => {
     if (selectedDays.length === 0) return;
     setIsSaving(true);
     await saveWorkoutPlan(routineId, category, level, selectedDays, 4); // default 4 weeks
@@ -74,9 +77,10 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
     const plans = await getWorkoutPlan();
     setPlannedWorkouts(Array.isArray(plans) ? plans : (plans ? [plans] : []));
     
+    setLastSavedPlan({ name, days: [...selectedDays] });
     setIsSaving(false);
-    setIsPlanning(false);
-    if (onNavigate) onNavigate('calendar');
+    setSaveSuccess(true);
+    // Note: We don't navigate yet, user sees the success state
   };
 
   const handleDeletePlan = async (category: string, level: string) => {
@@ -100,6 +104,52 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
           <p className={styles.subtitle}>Supera tus límites con rutinas diseñadas para resultados reales.</p>
         </div>
       </header>
+
+      {saveSuccess && lastSavedPlan && (
+        <div className={styles.successOverlay}>
+          <div className={styles.successCard}>
+            <CheckCircle2 size={48} className={styles.successIcon} />
+            <h2 className={styles.successTitle}>¡Rutina Programada!</h2>
+            <p className={styles.successDesc}>
+              Has añadido <strong>{lastSavedPlan.name}</strong> a tu programación de 4 semanas.
+            </p>
+            
+            <div className={styles.exportSection}>
+              <p className={styles.exportHint}>Añádela a tu calendario personal para recibir recordatorios:</p>
+              <div className={styles.exportButtons}>
+                <a 
+                  href={generateGoogleCalendarLink(lastSavedPlan.name, lastSavedPlan.days)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.exportBtn}
+                >
+                  <Calendar size={18} />
+                  <span>Google Calendar</span>
+                </a>
+                <button 
+                  onClick={() => downloadICS(lastSavedPlan.name, lastSavedPlan.days)}
+                  className={styles.exportBtn}
+                >
+                  <Download size={18} />
+                  <span>Descargar .iCal / Outlook</span>
+                </button>
+              </div>
+            </div>
+
+            <button 
+              className={styles.btnPrimary} 
+              style={{ width: '100%', marginTop: '24px' }}
+              onClick={() => {
+                setSaveSuccess(false);
+                setIsPlanning(false);
+                if (onNavigate) onNavigate('calendar');
+              }}
+            >
+              Ir al Calendario de la App
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className={styles.grid}>
         {workouts.map((workout) => {
@@ -240,7 +290,7 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
                                 <button 
                                   className={styles.btnPrimary} 
                                   disabled={selectedDays.length === 0 || isSaving}
-                                  onClick={() => handleSavePlan(workout.id, activeRoutineDetails.category, activeLevel || '')}
+                                  onClick={() => handleSavePlan(workout.id, activeRoutineDetails.category, activeLevel || '', activeRoutineDetails.name)}
                                 >
                                   {isSaving ? 'Guardando...' : 'Guardar y Ver Calendario'}
                                 </button>
