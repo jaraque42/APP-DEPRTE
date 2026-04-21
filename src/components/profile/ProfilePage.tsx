@@ -43,6 +43,19 @@ export default function ProfilePage() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Opcional: Podríamos comprimir aquí, pero por ahora usaremos el base64 directo
+      const base64String = reader.result as string;
+      setFormData({ ...formData, avatar_url: base64String });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const avatars = [
     'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
     'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
@@ -61,7 +74,10 @@ export default function ProfilePage() {
 
       <div className={styles.profileCard}>
         <div className={styles.avatarSection}>
-          <div className={styles.avatarWrapper}>
+          <div 
+            className={`${styles.avatarWrapper} ${isEditing ? styles.editable : ''}`}
+            onClick={() => isEditing && document.getElementById('avatarInput')?.click()}
+          >
             <img 
               src={formData.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'} 
               alt="Profile" 
@@ -72,11 +88,18 @@ export default function ProfilePage() {
                 <Camera size={24} />
               </div>
             )}
+            <input 
+              type="file" 
+              id="avatarInput" 
+              className={styles.hiddenInput} 
+              accept="image/*"
+              onChange={handleFileChange}
+            />
           </div>
           
           {isEditing && (
             <div className={styles.avatarPicker}>
-              <p className={styles.pickerTitle}>Elige un avatar:</p>
+              <p className={styles.pickerTitle}>O elige un avatar predefinido:</p>
               <div className={styles.avatarGrid}>
                 {avatars.map(url => (
                   <img 
