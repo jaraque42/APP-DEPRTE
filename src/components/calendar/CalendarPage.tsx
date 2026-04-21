@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import styles from './CalendarPage.module.css';
-import { getWorkoutPlan } from '@/services/supabaseService';
-import { Dumbbell, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
+import { getWorkoutPlan, deleteWorkoutPlan } from '@/services/supabaseService';
+import { Dumbbell, Calendar as CalendarIcon, CheckCircle2, Trash2 } from 'lucide-react';
 
 export default function CalendarPage({ onStartWorkout }: { onStartWorkout?: (plan: any) => void }) {
   const [workoutPlans, setWorkoutPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchPlan = async () => {
+    setLoading(true);
+    const plans = await getWorkoutPlan();
+    setWorkoutPlans(Array.isArray(plans) ? plans : (plans ? [plans] : []));
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchPlan = async () => {
-      const plans = await getWorkoutPlan();
-      setWorkoutPlans(Array.isArray(plans) ? plans : (plans ? [plans] : []));
-      setLoading(false);
-    };
     fetchPlan();
   }, []);
+
+  const handleDelete = async (category: string, level: string) => {
+    if (confirm(`¿Estás seguro de que quieres eliminar la rutina ${category} - ${level}?`)) {
+      await deleteWorkoutPlan(category, level);
+      await fetchPlan();
+    }
+  };
 
   const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   
@@ -50,7 +59,16 @@ export default function CalendarPage({ onStartWorkout }: { onStartWorkout?: (pla
           <div className={styles.planCard}>
             <div className={styles.planMeta}>PLANES ACTIVOS ({workoutPlans.length})</div>
             {workoutPlans.map(plan => (
-              <h2 key={plan.id} className={styles.planTitle}>{plan.routine_id.toUpperCase()} - {plan.level}</h2>
+              <div key={plan.id} className={styles.activePlanRow}>
+                <h2 className={styles.planTitle}>{plan.routine_id.toUpperCase()} - {plan.level}</h2>
+                <button 
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(plan.category, plan.level)}
+                  title="Eliminar rutina"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             ))}
             <p className={styles.planDesc}>Tus configuraciones para las próximas semanas.</p>
           </div>
