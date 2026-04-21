@@ -48,10 +48,38 @@ export default function ProfilePage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      // Opcional: Podríamos comprimir aquí, pero por ahora usaremos el base64 directo
-      const base64String = reader.result as string;
-      setFormData({ ...formData, avatar_url: base64String });
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Crear un canvas para redimensionar y comprimir
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Convertir a Base64 con calidad reducida (0.7)
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        setFormData({ ...formData, avatar_url: compressedBase64 });
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
