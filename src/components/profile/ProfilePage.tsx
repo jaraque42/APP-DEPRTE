@@ -31,13 +31,16 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setIsSaving(true);
+    console.log("Intentando guardar perfil...", formData);
     try {
-      await updateUserProfile(formData);
+      const result = await updateUserProfile(formData);
+      console.log("Resultado del guardado:", result);
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
       setIsEditing(false);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      console.error("Error al guardar perfil:", e);
+      alert("Error al guardar: " + (e.message || "Posible exceso de tamaño de imagen"));
     } finally {
       setIsSaving(false);
     }
@@ -51,10 +54,9 @@ export default function ProfilePage() {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        // Crear un canvas para redimensionar y comprimir
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 400;
-        const MAX_HEIGHT = 400;
+        const MAX_WIDTH = 200; // Mucho más pequeño
+        const MAX_HEIGHT = 200;
         let width = img.width;
         let height = img.height;
 
@@ -75,8 +77,10 @@ export default function ProfilePage() {
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        // Convertir a Base64 con calidad reducida (0.7)
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        // Calidad muy baja (0.5) para asegurar que quepa
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
+        console.log("Tamaño de imagen comprimida (caracteres):", compressedBase64.length);
+        
         setFormData({ ...formData, avatar_url: compressedBase64 });
       };
       img.src = event.target?.result as string;
