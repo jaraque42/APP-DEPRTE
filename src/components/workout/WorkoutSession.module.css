@@ -53,7 +53,14 @@
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 24px;
+  gap: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
   gap: 16px;
 }
 
@@ -79,6 +86,36 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #fff;
+}
+
+.spotifyBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1DB954; /* Spotify Green */
+  color: #000;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.spotifyBtn:hover {
+  transform: scale(1.05);
+  background-color: #1ed760;
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.4);
+}
+
+.spotifyBtn span {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .spotifyBtn span {
+    display: inline;
+  }
 }
 
 /* Stopwatch Area */

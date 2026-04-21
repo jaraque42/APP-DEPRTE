@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './WorkoutSession.module.css';
 import { WORKOUT_DB } from '@/data/workoutsData';
-import { Play, Pause, Square, ChevronLeft } from 'lucide-react';
+import { Play, Pause, Square, ChevronLeft, Music } from 'lucide-react';
 import { logDailyStatus } from '@/services/supabaseService';
 import { useAuth } from '@/components/auth/AuthContext';
 import TrainingTimer from './TrainingTimer';
@@ -61,10 +61,22 @@ export default function WorkoutSession({ plan, onComplete }: { plan: any, onComp
     <div className={styles.container}>
       {/* Header bar */}
       <header className={styles.header}>
-        <button onClick={onComplete} className={styles.backBtn}>
-          <ChevronLeft size={24} />
-        </button>
-        <span className={styles.planTitle}>{plan.routine_id.toUpperCase()} - {plan.level}</span>
+        <div className={styles.headerLeft}>
+          <button onClick={onComplete} className={styles.backBtn}>
+            <ChevronLeft size={24} />
+          </button>
+          <span className={styles.planTitle}>{plan.routine_id.toUpperCase()} - {plan.level}</span>
+        </div>
+        <a 
+          href="https://open.spotify.com" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className={styles.spotifyBtn}
+          title="Abrir Spotify"
+        >
+          <Music size={20} />
+          <span>Spotify</span>
+        </a>
       </header>
 
       {/* Exercise List */}
