@@ -69,12 +69,19 @@ export default function WorkoutSession({ plan, onComplete }: { plan: any, onComp
         </div>
         <button 
           onClick={() => {
-            // Intenta abrir la app nativa primero
-            window.location.href = "spotify:"; 
-            // Si después de 500ms no ha pasado nada, abre la web
+            const now = Date.now();
+            // Intenta abrir la app nativa con el protocolo reforzado
+            window.location.href = "spotify://"; 
+            
+            // Si el usuario cambia de app (la app de Spotify se abre), 
+            // la página se ocultará y el temporizador no debería hacer nada.
             setTimeout(() => {
-              window.open("https://open.spotify.com", "_blank");
-            }, 500);
+              // Si han pasado menos de 2 segundos y la página sigue visible, 
+              // probablemente la app no se abrió.
+              if (Date.now() - now < 2000 && !document.hidden) {
+                window.open("https://open.spotify.com", "_blank");
+              }
+            }, 1000);
           }} 
           className={styles.spotifyBtn}
           title="Abrir Spotify App"
