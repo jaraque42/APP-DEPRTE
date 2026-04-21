@@ -46,6 +46,7 @@ export const generateICSContent = (routineName: string, days: string[], weeks = 
     return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//EOLCAIMFIT//Workout Planner//ES
+METHOD:PUBLISH
 BEGIN:VEVENT
 UID:${Date.now()}@eolcaimfit.com
 DTSTAMP:${start}

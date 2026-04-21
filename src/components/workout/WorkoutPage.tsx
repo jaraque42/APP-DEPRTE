@@ -131,7 +131,7 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
                   className={styles.exportBtn}
                 >
                   <Download size={18} />
-                  <span>Descargar .iCal / Outlook</span>
+                  <span>Añadir a Apple / iPhone</span>
                 </button>
               </div>
             </div>
