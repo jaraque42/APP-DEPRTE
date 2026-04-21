@@ -15,6 +15,9 @@ export interface IUser extends Document {
   target_carbs?: number;
   target_fats?: number;
   onboarding_complete?: boolean;
+  bio?: string;
+  goals?: string;
+  avatar_url?: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -31,7 +34,10 @@ const UserSchema: Schema = new Schema({
   target_protein: { type: Number },
   target_carbs: { type: Number },
   target_fats: { type: Number },
-  onboarding_complete: { type: Boolean, default: false }
+  onboarding_complete: { type: Boolean, default: false },
+  bio: { type: String, default: "" },
+  goals: { type: String, default: "" },
+  avatar_url: { type: String, default: "" }
 }, { timestamps: true });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

@@ -93,6 +93,12 @@ export async function updateMongoUserMacros(userId: string, macros: { kcal: numb
     return true;
 }
 
+export async function updateMongoUserProfile(userId: string, profileData: { name?: string, bio?: string, goals?: string, avatar_url?: string }) {
+    await connectToDatabase();
+    await User.findByIdAndUpdate(userId, profileData);
+    return true;
+}
+
 // Workouts
 export async function saveMongoWorkoutPlan(userId: string, planData: any) {
     await connectToDatabase();

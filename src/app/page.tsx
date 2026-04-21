@@ -10,6 +10,7 @@ import DietPage from "@/components/nutrition/DietPage";
 import WorkoutPage from "@/components/workout/WorkoutPage";
 import CalendarPage from "@/components/calendar/CalendarPage";
 import WorkoutSession from "@/components/workout/WorkoutSession";
+import ProfilePage from "@/components/profile/ProfilePage";
 import { initAudio } from "@/lib/audioUtils";
 
 export default function Home() {
@@ -49,7 +50,8 @@ export default function Home() {
       {activeSection === "diet" && <DietPage />}
       {activeSection === "workout" && <WorkoutPage onNavigate={setActiveSection} />}
       {activeSection === "calendar" && <CalendarPage onStartWorkout={startWorkout} />}
-      {activeSection !== "home" && activeSection !== "diet" && activeSection !== "workout" && activeSection !== "calendar" && (
+      {activeSection === "profile" && <ProfilePage />}
+      {activeSection !== "home" && activeSection !== "diet" && activeSection !== "workout" && activeSection !== "calendar" && activeSection !== "profile" && (
         <div style={{ padding: "40px", textAlign: "center", color: "var(--secondary-text)" }}>
           Sección "{activeSection}" en desarrollo... ⚡️
         </div>

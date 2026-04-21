@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import styles from "./Navigation.module.css";
-import { Home, Apple, Dumbbell, Calendar } from "lucide-react";
+import { Home, Apple, Dumbbell, Calendar, User } from "lucide-react";
 
 export default function Navigation({ active, onNavigate }: { active: string, onNavigate: (id: string) => void }) {
   const navItems = [
@@ -10,6 +10,7 @@ export default function Navigation({ active, onNavigate }: { active: string, onN
     { id: "diet", icon: Apple, label: "Dieta" },
     { id: "workout", icon: Dumbbell, label: "Entreno" },
     { id: "calendar", icon: Calendar, label: "Calendario" },
+    { id: "profile", icon: User, label: "Perfil" },
   ];
 
   return (

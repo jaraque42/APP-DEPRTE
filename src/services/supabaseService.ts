@@ -152,6 +152,24 @@ export const updateUserMacros = async (macros: { kcal: number, p: number, c: num
   return true;
 };
 
+export const updateUserProfile = async (profileData: { name?: string, bio?: string, goals?: string, avatar_url?: string }) => {
+  if (IS_MOCK_MODE) {
+    mockUserDoc = {
+      ...mockUserDoc,
+      ...profileData
+    };
+    setLocal('user_doc', mockUserDoc);
+    triggerMockAuthChange('USER_UPDATED');
+    return { success: true };
+  }
+
+  const user = await getActiveUser();
+  if (!user) throw new Error("No user");
+
+  await actions.updateMongoUserProfile(user.id, profileData);
+  return { success: true };
+};
+
 export const handleLogout = async () => {
   if (IS_MOCK_MODE) {
     mockUser = null;
