@@ -42,7 +42,8 @@ const workouts = [
   }
 ];
 
-import { saveWorkoutPlan } from '@/services/supabaseService';
+import { saveWorkoutPlan, getWorkoutPlan, deleteWorkoutPlan } from '@/services/supabaseService';
+import { useEffect } from 'react';
 
 export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) => void }) {
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
@@ -50,6 +51,15 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
   const [isPlanning, setIsPlanning] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [plannedWorkouts, setPlannedWorkouts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const plans = await getWorkoutPlan();
+      setPlannedWorkouts(Array.isArray(plans) ? plans : (plans ? [plans] : []));
+    };
+    fetchPlans();
+  }, []);
 
   const toggleDay = (day: string) => {
     setSelectedDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
@@ -59,8 +69,26 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
     if (selectedDays.length === 0) return;
     setIsSaving(true);
     await saveWorkoutPlan(routineId, category, level, selectedDays, 4); // default 4 weeks
+    
+    // Refresh local state
+    const plans = await getWorkoutPlan();
+    setPlannedWorkouts(Array.isArray(plans) ? plans : (plans ? [plans] : []));
+    
     setIsSaving(false);
+    setIsPlanning(false);
     if (onNavigate) onNavigate('calendar');
+  };
+
+  const handleDeletePlan = async (category: string, level: string) => {
+    setIsSaving(true);
+    await deleteWorkoutPlan(category, level);
+    
+    // Refresh local state
+    const plans = await getWorkoutPlan();
+    setPlannedWorkouts(Array.isArray(plans) ? plans : (plans ? [plans] : []));
+    
+    setIsSaving(false);
+    setIsPlanning(false);
   };
 
 
@@ -158,15 +186,27 @@ export default function WorkoutPage({ onNavigate }: { onNavigate?: (s: string) =
                        <div className={styles.exercisesContainer}>
                          {!isPlanning ? (
                            <>
-                             <div className={styles.detailsHeader}>
-                               <div>
-                                 <h4 className={styles.detailTitle}>{activeRoutineDetails.name}</h4>
-                                 <p className={styles.detailDesc}>{activeRoutineDetails.description}</p>
+                               <div className={styles.detailsHeader}>
+                                 <div>
+                                   <h4 className={styles.detailTitle}>{activeRoutineDetails.name}</h4>
+                                   <p className={styles.detailDesc}>{activeRoutineDetails.description}</p>
+                                 </div>
+                                 <div className={styles.detailActions}>
+                                   {plannedWorkouts.some(p => p.category === workout.id && p.level === activeLevel) ? (
+                                     <button 
+                                       className={styles.btnDanger} 
+                                       onClick={() => handleDeletePlan(workout.id, activeLevel || '')}
+                                       disabled={isSaving}
+                                     >
+                                        {isSaving ? 'Quitando...' : 'Quitar de mi Programación'}
+                                     </button>
+                                   ) : (
+                                     <button className={styles.btnPrimary} onClick={() => setIsPlanning(true)}>
+                                        Añadir a mi Programación
+                                     </button>
+                                   )}
+                                 </div>
                                </div>
-                               <button className={styles.btnPrimary} onClick={() => setIsPlanning(true)}>
-                                  Añadir a mi Programación
-                               </button>
-                             </div>
                              <ul className={styles.exerciseList}>
                                {activeRoutineDetails.exercises.map((ex, idx) => (
                                  <li key={idx} className={styles.exerciseItem}>

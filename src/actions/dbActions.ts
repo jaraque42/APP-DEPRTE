@@ -106,6 +106,12 @@ export async function getMongoWorkoutPlans(userId: string) {
     return JSON.parse(JSON.stringify(plans));
 }
 
+export async function deleteMongoWorkoutPlan(userId: string, category: string, level: string) {
+    await connectToDatabase();
+    await WorkoutPlan.deleteMany({ user_id: userId, category, level });
+    return { success: true };
+}
+
 // Food Library & Logs
 export async function searchMongoFoodLibrary(query: string) {
     await connectToDatabase();

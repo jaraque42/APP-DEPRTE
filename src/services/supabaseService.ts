@@ -281,6 +281,20 @@ export const saveWorkoutPlan = async (routineId: string, category: string, level
   return { success: true };
 };
 
+export const deleteWorkoutPlan = async (category: string, level: string) => {
+  const user = await getActiveUser();
+  if (!user) throw new Error("No authenticated user");
+
+  if (IS_MOCK_MODE) {
+    mockWorkoutPlans = mockWorkoutPlans.filter(p => !(p.category === category && p.level === level));
+    setLocal('workout_plans', mockWorkoutPlans);
+    return { success: true };
+  }
+
+  await actions.deleteMongoWorkoutPlan(user.id, category, level);
+  return { success: true };
+};
+
 export const getWorkoutPlan = async () => {
   const user = await getActiveUser();
   if (!user) return [];
